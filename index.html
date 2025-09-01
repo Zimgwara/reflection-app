@@ -9,42 +9,18 @@
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#2c3e50">
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
-    
-    <!-- Netlify Identity Widget Script -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    
-    <!-- Firebase Config Setup -->
-    <script>
-      // Replace this with your actual Firebase config object
-      window.firebaseConfig = {
-        apiKey: "AIzaSyBif3Ejzt-KiY1vDyFPtRQjX5ne-SnV4dM",
-        authDomain: "reflectdent-74d8c.firebaseapp.com",
-        projectId: "reflectdent-74d8c",
-        storageBucket: "reflectdent-74d8c.appspot.com",
-        messagingSenderId: "510796139347",
-        appId: "1:510796139347:web:426f0414b5f20f350f2fa6"
-      };
-    </script>
 </head>
 <body>
     <div class="app-wrapper">
-        <div data-netlify-identity-button></div>
-
         <div id="app-content" style="display: none;">
-            
-            <div id="reflections-list-view">
-                <div class="list-header">
-                    <h2>My Reflections</h2>
-                    <button id="newReflectionBtn" class="new-reflection-btn">+ New Reflection</button>
-                </div>
-                <div id="reflections-list-container"></div>
-            </div>
-
-            <main class="container" id="editor-view" style="display: none;">
+            <main class="container">
                 <div class="top-header">
                     <div class="logo-container">
-                        <img src="company_logo.png" alt="Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
+                        <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
                     </div>
+                    <div data-netlify-identity-button></div>
                     <div class="theme-switch-wrapper top-right-corner">
                         <label class="theme-switch" for="themeToggle">
                             <input type="checkbox" id="themeToggle" role="switch">
@@ -54,151 +30,168 @@
                     </div>
                 </div>
 
-                <input type="text" id="reflectionTitle" class="reflection-title-input" placeholder="Give your reflection a title...">
-                
-                <p class="last-saved-timestamp" id="lastSavedTimestamp">Not saved yet</p>
-                
-                <div class="section-block">
-                    <h2>Your Reflection:</h2>
-                    <div id="reflection" class="quill-editor"></div>
-                </div>
-                <div class="section-block">
-                    <h2>Attach Relevant Media</h2>
-                    <div class="image-upload-section">
-                        <div class="image-upload-buttons">
-                            <label class="custom-file-upload" for="imageUploadCamera">📸 Take Photo</label>
-                            <input type="file" id="imageUploadCamera" accept="image/*" capture="camera" multiple>
-                            <label class="custom-file-upload" for="imageUploadGallery">🖼️ Upload Image</label>
-                            <input type="file" id="imageUploadGallery" accept="image/*" multiple>
-                             <label class="custom-file-upload" for="videoUploadCamera">📹 Record Video</label>
-                            <input type="file" id="videoUploadCamera" accept="video/*" capture="user" multiple>
-                            <label class="custom-file-upload" for="videoUploadGallery">🎬 Upload Video</label>
-                            <input type="file" id="videoUploadGallery" accept="video/*" multiple>
-                        </div>
-                        <div id="mediaPreviewContainer">
-                            <span class="no-media-selected" id="noMediaMessage">No media selected yet.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="section-block" id="lecturerFeedbackSection">
-                    <h2>Lecturer Feedback</h2>
-                    <div id="feedback" class="quill-editor"></div>
+                <div id="reflectionsListContainer">
+                    <h1>My Reflections</h1>
+                    <button id="newReflectionBtn">New Reflection</button>
+                    <ul id="reflectionsList"></ul>
                 </div>
 
-                <div class="action-button-group">
-                    <button id="saveReflectionBtn" class="action-btn save-btn">Save Reflection</button>
-                    <button id="deleteReflectionBtn" class="action-btn delete-btn" style="display: none;">Delete</button>
-                    <button class="action-btn" onclick="printPage()">Print / Save as PDF</button>
+                <div id="reflectionEditorContainer" class="hidden">
+                    <h1>My Technical Reflection</h1>
+                    <input type="text" id="reflectionTitle" placeholder="Enter a title for this reflection...">
+                    <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
+
+                    <div class="section-block">
+                        <h2>Your Reflection:</h2>
+                        <div id="reflection" class="quill-editor"></div>
+                    </div>
+                    <div class="section-block">
+                        <h2>Attach Relevant Media</h2>
+                        <div class="image-upload-section">
+                            <label class="custom-file-upload" for="mediaUpload">Upload Image/Video</label>
+                            <input type="file" id="mediaUpload" accept="image/*,video/*" multiple>
+                            <div id="mediaPreviewContainer"></div>
+                        </div>
+                    </div>
+                    <div class="section-block" id="lecturerFeedbackSection">
+                        <h2>Lecturer Feedback</h2>
+                        <div id="feedback" class="quill-editor"></div>
+                    </div>
+
+                    <div class="action-button-group">
+                        <button id="saveReflectionBtn">Save and Close</button>
+                        <button id="deleteReflectionBtn" class="delete-btn">Delete Reflection</button>
+                        <button class="print-btn" onclick="printPage()">Print / Save as PDF</button>
+                    </div>
                 </div>
-                <button id="backToListBtn" class="back-btn">← Back to List</button>
-                <p id="message" aria-live="polite"></p> 
             </main>
         </div>
     </div>
-
-    <!-- Deletion Confirmation Modal -->
-    <div id="deleteConfirmationModal" class="modal-overlay">
+    
+    <div id="confirmationModal" class="modal-overlay">
         <div class="modal-content">
-            <p>Are you sure you want to delete this reflection? This action cannot be undone.</p>
+            <p id="modalMessage">Are you sure you want to delete this reflection? This action cannot be undone.</p>
             <div class="modal-buttons">
-                <button id="confirmDeleteBtn" class="modal-btn confirm-yes-btn">Yes, Delete</button>
-                <button id="cancelDeleteBtn" class="modal-btn confirm-no-btn">Cancel</button>
+                <button id="confirmYes" class="modal-btn confirm-yes-btn">Yes, Delete</button>
+                <button id="confirmNo" class="modal-btn confirm-no-btn">Cancel</button>
             </div>
         </div>
     </div>
+    
+    <p id="message" aria-live="polite"></p>
 
-    <!-- Script Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
-    <script type="module" src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
-    <!-- Main Controller Script (Initializes Firebase & App) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-        let appInitialized = false;
-        
-        const app = initializeApp(window.firebaseConfig);
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const getFirebaseToken = async (netlifyToken) => {
-            const response = await fetch('/.netlify/functions/get-firebase-token', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${netlifyToken}`
-                }
-            });
-            if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("Token function failed:", errorBody);
-                throw new Error('Failed to get Firebase token.');
+        window.firebaseServices = { auth, db };
+        window.initializeApp = initializeApp; // Make it globally available
+    </script>
+    
+    <script src="script.js"></script>
+    
+    <script>
+        // --- Standalone Dark Mode Handler ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const savedTheme = localStorage.getItem('myTechnicalReflection_theme') || 'light';
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.checked = true;
             }
-            const { token } = await response.json();
-            return token;
+
+            themeToggle.addEventListener('change', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('myTechnicalReflection_theme', isDarkMode ? 'dark' : 'light');
+            });
+        });
+
+        // --- Netlify Identity to Firebase Authentication Bridge ---
+        let appInitialized = false;
+
+        async function authenticateWithFirebase() {
+            console.log("Step 1: Authenticating with Firebase...");
+            const netlifyUser = netlifyIdentity.currentUser();
+            
+            if (!netlifyUser || !netlifyUser.token) {
+                console.error("Netlify user or token not found.");
+                return;
+            }
+
+            try {
+                console.log("Step 2: Calling Netlify function to get Firebase token...");
+                const response = await fetch('/.netlify/functions/get-firebase-token', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${netlifyUser.token.access_token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Function returned an error: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log("Step 3: Received Firebase token. Signing in...");
+                await signInWithCustomToken(window.firebaseServices.auth, data.token);
+                console.log("Step 4: Successfully signed in to Firebase!");
+
+            } catch (error) {
+                console.error("CRITICAL FAILURE during Firebase authentication:", error);
+            }
         }
 
-        onAuthStateChanged(auth, user => {
-            const appContent = document.getElementById('app-content');
-            if (user) {
+        onAuthStateChanged(window.firebaseServices.auth, (firebaseUser) => {
+            console.log("Firebase auth state changed. User:", firebaseUser);
+            if (firebaseUser) {
+                const appContent = document.getElementById('app-content');
                 appContent.style.display = 'block';
                 if (!appInitialized) {
-                    window.initializeApp(db, user.uid);
+                    console.log("Step 5: Initializing the application...");
+                    initializeMainApp(firebaseUser.uid); // Pass UID to main script
                     appInitialized = true;
                 }
-            } else {
-                appContent.style.display = 'none';
             }
         });
-        
-        const handleLogin = async (user) => {
-            try {
-                const firebaseToken = await getFirebaseToken(user.token.access_token);
-                await signInWithCustomToken(auth, firebaseToken);
-            } catch (error) {
-                console.error("Firebase sign-in failed:", error);
-            } finally {
-                netlifyIdentity.close();
-            }
-        };
-        
-        netlifyIdentity.on('login', handleLogin);
 
-        netlifyIdentity.on('logout', () => {
-            auth.signOut();
+        netlifyIdentity.on('login', (user) => {
+            console.log("Netlify login event detected.");
+            netlifyIdentity.close();
+            authenticateWithFirebase();
+        });
+
+        netlifyIdentity.on('logout', async () => {
+            console.log("Netlify logout event detected.");
+            await signOut(window.firebaseServices.auth);
+            document.getElementById('app-content').style.display = 'none';
+            appInitialized = false;
             window.location.reload();
         });
-        
+
         netlifyIdentity.on('init', (user) => {
+            console.log("Netlify Identity widget initialized.");
             if (user) {
-                handleLogin(user);
+                console.log("Existing Netlify user session found.");
+                authenticateWithFirebase();
             }
         });
-    </script>
-    <script>
-        // Standalone Dark Mode Logic
-        const themeToggle = document.getElementById('themeToggle');
-        if(themeToggle){
-            const body = document.body;
-            const themeKey = 'myTechnicalReflection_theme';
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    body.classList.add('dark-mode');
-                    themeToggle.checked = true;
-                } else {
-                    body.classList.remove('dark-mode');
-                    themeToggle.checked = false;
-                }
-            };
-            const savedTheme = localStorage.getItem(themeKey);
-            applyTheme(savedTheme);
-            themeToggle.addEventListener('change', () => {
-                const isDarkMode = themeToggle.checked;
-                localStorage.setItem(themeKey, isDarkMode ? 'dark' : 'light');
-                applyTheme(isDarkMode ? 'dark' : 'light');
-            });
-        }
     </script>
 </body>
 </html>
