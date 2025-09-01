@@ -88,43 +88,44 @@ body.dark-mode {
 
 
 /* General Body and Font Styles */
+/* --- CORRECTED LAYOUT RULES --- */
+
+/* 1. Corrected Body Style (No Flexbox) */
 body {
     font-family: 'Inter', 'Lato', Arial, sans-serif;
     line-height: 1.65;
     letter-spacing: 0.01em;
     margin: 0;
     padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for theme change */
-
+    transition: background-color 0.3s ease, color 0.3s ease;
     background-color: var(--bg-color-light);
     color: var(--text-color-primary);
 }
 
-.container {
-    max-width: 700px;
-    width: 100%;
-    margin: 30px auto;
-    padding: 30px;
-    border-radius: 12px;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for theme change */
-
-    background: var(--bg-color-main);
-    box-shadow: 0 8px 25px var(--shadow-light);
-}
-
-/* --- Top Header for Logo and Theme Toggle --- */
+/* 2. Corrected Header Style */
 .top-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Align logo and toggle to top */
-    margin-bottom: 25px; /* Space below the header */
-    width: 100%; /* Take full width of container */
+    align-items: center; /* This is the key vertical alignment fix */
+    max-width: 800px; /* Match the main container's width */
+    margin: 0 auto 25px auto; /* Center the header and add space below */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 3. Re-confirm Container Centering */
+.container {
+    max-width: 800px;
+    width: 100%;
+    margin: 20px auto; /* This centers the main content block */
+    padding: 30px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    background: var(--bg-color-main);
+    box-shadow: 0 8px 25px var(--shadow-light);
 }
 
 /* Logo Styling - now inside top-header */
