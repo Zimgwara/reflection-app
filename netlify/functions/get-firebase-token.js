@@ -1,52 +1,72 @@
 // This function securely exchanges a Netlify user's token for a Firebase custom token.
-// It includes debugging logs to help diagnose environment variable issues.
+// It includes advanced debugging and attempts to auto-correct private key formatting.
 
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK if not already initialized
-// This block will only run once when the function is first loaded.
-if (!admin.apps.length) {
+function initializeFirebaseAdmin() {
+  // This function will only run if the SDK isn't already initialized.
+  if (admin.apps.length > 0) {
+    return;
+  }
+
+  console.log("--- INITIALIZING FIREBASE ADMIN SDK ---");
+
+  // --- Check for presence of all required environment variables ---
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKey) {
+    console.error("CRITICAL FAILURE: One or more required Firebase environment variables are missing.");
+    console.error("Is FIREBASE_PROJECT_ID set?", !!projectId);
+    console.error("Is FIREBASE_CLIENT_EMAIL set?", !!clientEmail);
+    console.error("Is FIREBASE_PRIVATE_KEY set?", !!privateKey);
+    throw new Error("Missing Firebase credentials in environment variables.");
+  }
+  
+  console.log("Successfully retrieved all environment variables.");
+  console.log("DEBUG: Project ID:", projectId);
+  console.log("DEBUG: Client Email:", clientEmail);
+
+  // --- Auto-correction for the private key formatting ---
+  // This is the most common point of failure. We will aggressively clean the key.
+  console.log("Attempting to format the private key...");
   try {
-    // --- IMPORTANT: Environment Variables ---
-    // You MUST set these in your Netlify site's "Build & deploy" > "Environment" settings:
-    // FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
-    // -----------------------------------------
+    privateKey = privateKey.replace(/\\n/g, '\n');
+    console.log("Replaced '\\n' with newline characters.");
+  } catch (e) {
+      console.error("Could not perform replace operation on private key.", e);
+  }
+
+  try {
     admin.initializeApp({
       credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        // The private key needs to be formatted with '\\n' for newlines.
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        projectId: projectId,
+        clientEmail: clientEmail,
+        privateKey: privateKey,
       }),
     });
+    console.log("--- FIREBASE ADMIN SDK INITIALIZED SUCCESSFULLY ---");
   } catch (error) {
-    // This will catch errors during initialization, like a malformed private key.
-    console.error("CRITICAL: Firebase Admin SDK initialization failed.", error);
-    // We throw the error to ensure the function doesn't proceed with a broken state.
+    console.error("CRITICAL: Firebase Admin SDK initialization failed AFTER formatting the key.");
+    console.error("This means the key itself or other credentials might be incorrect.");
+    console.error("Full Error:", error);
     throw error;
   }
 }
 
+// Main handler for the Netlify Function
 exports.handler = async (event, context) => {
-  // --- ADDED FOR DEBUGGING ---
-  console.log("--- DEBUGGING LOGS: Checking environment variables ---");
-  console.log("FIREBASE_PROJECT_ID is set:", !!process.env.FIREBASE_PROJECT_ID);
-  console.log("FIREBASE_CLIENT_EMAIL is set:", !!process.env.FIREBASE_CLIENT_EMAIL);
-  
-  if (process.env.FIREBASE_PRIVATE_KEY) {
-    console.log("FIREBASE_PRIVATE_KEY is set.");
-    console.log("Type of private key:", typeof process.env.FIREBASE_PRIVATE_KEY);
-    console.log("Length of private key:", process.env.FIREBASE_PRIVATE_KEY.length);
-    // Check if the key looks like it's formatted correctly as a single line.
-    console.log("Starts with '-----BEGIN PRIVATE KEY-----':", process.env.FIREBASE_PRIVATE_KEY.startsWith('-----BEGIN PRIVATE KEY-----'));
-    console.log("Ends with '-----END PRIVATE KEY-----\\n':", process.env.FIREBASE_PRIVATE_KEY.endsWith('-----END PRIVATE KEY-----\\n'));
-    console.log("Contains '\\n' characters:", process.env.FIREBASE_PRIVATE_KEY.includes('\\n'));
-  } else {
-    // This is a critical failure if the key isn't set at all.
-    console.error("CRITICAL FAILURE: The FIREBASE_PRIVATE_KEY environment variable is NOT SET.");
+  try {
+    // Ensure Firebase is initialized before proceeding.
+    initializeFirebaseAdmin();
+  } catch (initError) {
+    // If initialization fails, return an internal server error.
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal Server Error: Could not initialize Firebase connection.' }),
+    };
   }
-  console.log("--- END DEBUGGING LOGS ---");
-  // --- END DEBUGGING SECTION ---
 
   const { user } = context.clientContext;
   if (!user) {
@@ -61,12 +81,13 @@ exports.handler = async (event, context) => {
 
   try {
     const firebaseToken = await admin.auth().createCustomToken(uid);
+    console.log(`Successfully created Firebase token for user: ${uid}`);
     return {
       statusCode: 200,
       body: JSON.stringify({ token: firebaseToken }),
     };
   } catch (error) {
-    console.error('Error creating Firebase custom token:', error);
+    console.error(`Error creating Firebase custom token for user: ${uid}`, error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to create Firebase token.' }),
