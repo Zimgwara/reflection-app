@@ -12,195 +12,197 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     
-    <!-- ADDED: Netlify Identity Widget Script -->
+    <!-- Netlify Identity Widget Script -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-
-    <!-- This top header is now outside the hidden content, so it's always visible -->
-    <div class="top-header">
-        <div class="logo-container">
-            <img src="company_logo.png" alt="[Your Company Name] Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
-        </div>
-        
-        <!-- ADDED: Div for Netlify Identity Login/Logout buttons -->
+    <!-- This wrapper helps center the entire application -->
+    <div class="app-wrapper">
+        <!-- The Login/Logout button is now outside the hidden content, but inside the centered wrapper -->
         <div data-netlify-identity-button></div>
 
-        <div class="theme-switch-wrapper top-right-corner">
-            <label class="theme-switch" for="themeToggle">
-                <input type="checkbox" id="themeToggle" role="switch">
-                <div class="slider round"></div>
-            </label>
-            <span class="theme-label">Dark Mode</span>
-        </div>
-    </div>
-
-    <!-- ADDED: A wrapper to hide the main app content when logged out -->
-    <div id="app-content" style="display: none;">
-        <main class="container">
-            <h1>My Technical Reflection</h1>
-            <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
-
-            <div class="section-block">
-                <h2>Your Reflection:</h2>
-                <label for="reflection">
-                    What are your reflections on this piece of work? What went well, and what didn't? What will you work on or change in the future?
-                </label>
-                <div class="prompt-selection">
-                    <label for="promptSelect">Choose a prompt:</label>
-                    <select id="promptSelect">
-                        <option value="">-- Select a prompt --</option>
-                        <option value="well">What went well?</option>
-                        <option value="challenging">What was challenging?</option>
-                        <option value="future">What will you work on or change in the future?</option>
-                        <option value="star">STAR Reflection (Situation, Task, Action, Result)</option>
-                    </select>
-                    <button id="insertPromptBtn">Insert Prompt</button>
-                </div>
-                <div id="reflection" class="quill-editor"></div>
-                <div class="word-char-count">
-                    <span id="reflectionWordCount">0 words</span> / <span id="reflectionCharCount">0 characters</span>
-                </div>
-            </div>
-
-            <div class="section-block">
-                <h2 data-original-text="Attach Relevant Media (Optional)">Attach Relevant Media (Optional)</h2>
-                <div class="image-upload-section">
-                    <div class="image-upload-buttons">
-                        <label class="custom-file-upload" for="imageUploadCamera">
-                            <span role="img" aria-label="Camera">📸</span> Take Photo
+        <!-- This content is hidden until the user logs in -->
+        <div id="app-content" style="display: none;">
+            <main class="container">
+                <!-- The header is now back INSIDE the main container -->
+                <div class="top-header">
+                    <div class="logo-container">
+                        <img src="company_logo.png" alt="[Your Company Name] Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
+                    </div>
+                    <div class="theme-switch-wrapper top-right-corner">
+                        <label class="theme-switch" for="themeToggle">
+                            <input type="checkbox" id="themeToggle" role="switch">
+                            <div class="slider round"></div>
                         </label>
-                        <input type="file" id="imageUploadCamera" accept="image/*" capture="camera" multiple>
+                        <span class="theme-label">Dark Mode</span>
+                    </div>
+                </div>
 
-                        <label class="custom-file-upload" for="imageUploadGallery">
-                            <span role="img" aria-label="Gallery">🖼️</span> Upload Existing Image
-                        </label>
-                        <input type="file" id="imageUploadGallery" accept="image/*" multiple>
+                <h1>My Technical Reflection</h1>
+                <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
+
+                <!-- ... ALL of your other sections and modals go here as they were ... -->
+                <!-- (Reflection, Media, Feedback, Buttons, Modals, etc.) -->
+
+                <div class="section-block">
+                    <h2>Your Reflection:</h2>
+                    <label for="reflection">
+                        What are your reflections on this piece of work? What went well, and what didn't? What will you work on or change in the future?
+                    </label>
+                    <div class="prompt-selection">
+                        <label for="promptSelect">Choose a prompt:</label>
+                        <select id="promptSelect">
+                            <option value="">-- Select a prompt --</option>
+                            <option value="well">What went well?</option>
+                            <option value="challenging">What was challenging?</option>
+                            <option value="future">What will you work on or change in the future?</option>
+                            <option value="star">STAR Reflection (Situation, Task, Action, Result)</option>
+                        </select>
+                        <button id="insertPromptBtn">Insert Prompt</button>
+                    </div>
+                    <div id="reflection" class="quill-editor"></div>
+                    <div class="word-char-count">
+                        <span id="reflectionWordCount">0 words</span> / <span id="reflectionCharCount">0 characters</span>
+                    </div>
+                </div>
+    
+                <div class="section-block">
+                    <h2 data-original-text="Attach Relevant Media (Optional)">Attach Relevant Media (Optional)</h2>
+                    <div class="image-upload-section">
+                        <div class="image-upload-buttons">
+                            <label class="custom-file-upload" for="imageUploadCamera">
+                                <span role="img" aria-label="Camera">📸</span> Take Photo
+                            </label>
+                            <input type="file" id="imageUploadCamera" accept="image/*" capture="camera" multiple>
+    
+                            <label class="custom-file-upload" for="imageUploadGallery">
+                                <span role="img" aria-label="Gallery">🖼️</span> Upload Existing Image
+                            </label>
+                            <input type="file" id="imageUploadGallery" accept="image/*" multiple>
+                            
+                            <label class="custom-file-upload" for="videoUploadCamera">
+                                <span role="img" aria-label="Video Camera">📹</span> Record Video
+                            </label>
+                            <input type="file" id="videoUploadCamera" accept="video/*" capture="user" multiple>
+    
+                            <label class="custom-file-upload" for="videoUploadGallery">
+                                <span role="img" aria-label="Video Gallery">🎬</span> Upload Existing Video
+                            </label>
+                            <input type="file" id="videoUploadGallery" accept="video/*" multiple>
+                        </div>
                         
-                        <label class="custom-file-upload" for="videoUploadCamera">
-                            <span role="img" aria-label="Video Camera">📹</span> Record Video
-                        </label>
-                        <input type="file" id="videoUploadCamera" accept="video/*" capture="user" multiple>
-
-                        <label class="custom-file-upload" for="videoUploadGallery">
-                            <span role="img" aria-label="Video Gallery">🎬</span> Upload Existing Video
-                        </label>
-                        <input type="file" id="videoUploadGallery" accept="video/*" multiple>
-                    </div>
-                    
-                    <div id="mediaPreviewContainer"> <span class="no-media-selected" id="noMediaMessage">No media selected yet.</span> </div>
-                </div>
-            </div>
-
-            <div class="section-block" id="lecturerFeedbackSection">
-                <h2>Lecturer Feedback</h2>
-                <label for="feedback">
-                    Record the lecturer's feedback here.
-                </label>
-                <div class="input-group">
-                    <div id="feedback" class="quill-editor"></div>
-                    <button class="microphone-button" data-target="feedback" title="Start/Stop Dictation">🎙️</button>
-                </div>
-                <div class="word-char-count">
-                    <span id="feedbackWordCount">0 words</span> / <span id="feedbackCharCount">0 characters</span>
-                </div>
-            </div>
-
-            <div class="action-button-group">
-                <button class="copy-btn" onclick="copyContent()">Copy to Clipboard</button>
-                <button class="print-btn" onclick="printPage()">Print / Save as PDF</button>
-                <button class="share-btn" onclick="shareContent()">Share</button>
-                <button class="download-html-btn" onclick="downloadAsHtml()">Download as HTML File</button>
-            </div>
-            
-            <div class="clear-data-group">
-                <button id="clearAllDataBtn" class="clear-btn">Clear All Data</button>
-            </div>
-
-            <p id="message" aria-live="polite"></p>
-
-            <div id="instructions-container" class="instructions-hidden">
-                <p id="instruction-text"></p>
-                <button id="close-instructions" onclick="hideInstructions()">Got It!</button>
-            </div>
-
-            <div id="confirmationModal" class="modal-overlay">
-                <div class="modal-content">
-                    <p id="modalMessage">Are you sure you want to clear all data? This action cannot be undone.</p>
-                    <div class="modal-buttons">
-                        <button id="confirmYes" class="modal-btn confirm-yes-btn">Yes, Clear All</button>
-                        <button id="confirmNo" class="modal-btn confirm-no-btn">No, Cancel</button>
+                        <div id="mediaPreviewContainer"> <span class="no-media-selected" id="noMediaMessage">No media selected yet.</span> </div>
                     </div>
                 </div>
-            </div>
-
-            <div id="imageCropperModal" class="modal-overlay">
-                <div class="modal-content cropper-modal">
-                    <p class="cropper-modal-title">Crop & Resize Image</p>
-                    <div class="img-container">
-                        <img id="imageToCrop" src="" alt="Image to Crop">
+    
+                <div class="section-block" id="lecturerFeedbackSection">
+                    <h2>Lecturer Feedback</h2>
+                    <label for="feedback">
+                        Record the lecturer's feedback here.
+                    </label>
+                    <div class="input-group">
+                        <div id="feedback" class="quill-editor"></div>
+                        <button class="microphone-button" data-target="feedback" title="Start/Stop Dictation">🎙️</button>
                     </div>
-                    <div class="cropper-controls">
-                        <button class="cropper-btn" id="rotateLeftBtn" title="Rotate Left">⟲</button>
-                        <button class="cropper-btn" id="rotateRightBtn" title="Rotate Right">⟳</button>
-                        <button class="cropper-btn" id="zoomInBtn" title="Zoom In">+</button>
-                        <button class="cropper-btn" id="zoomOutBtn" title="Zoom Out">-</button>
-                        <button class="cropper-btn" id="resetCropperBtn" title="Reset">⟳ Reset</button>
-                    </div>
-                    <div class="modal-buttons">
-                        <button id="cropDoneBtn" class="modal-btn confirm-yes-btn">Done Cropping</button>
-                        <button id="cropCancelBtn" class="modal-btn confirm-no-btn">Cancel</button>
+                    <div class="word-char-count">
+                        <span id="feedbackWordCount">0 words</span> / <span id="feedbackCharCount">0 characters</span>
                     </div>
                 </div>
-            </div>
-            
-        </main>
+    
+                <div class="action-button-group">
+                    <button class="copy-btn" onclick="copyContent()">Copy to Clipboard</button>
+                    <button class="print-btn" onclick="printPage()">Print / Save as PDF</button>
+                    <button class="share-btn" onclick="shareContent()">Share</button>
+                    <button class="download-html-btn" onclick="downloadAsHtml()">Download as HTML File</button>
+                </div>
+                
+                <div class="clear-data-group">
+                    <button id="clearAllDataBtn" class="clear-btn">Clear All Data</button>
+                </div>
+    
+                <p id="message" aria-live="polite"></p>
+    
+                <div id="instructions-container" class="instructions-hidden">
+                    <p id="instruction-text"></p>
+                    <button id="close-instructions" onclick="hideInstructions()">Got It!</button>
+                </div>
+    
+                <div id="confirmationModal" class="modal-overlay">
+                    <div class="modal-content">
+                        <p id="modalMessage">Are you sure you want to clear all data? This action cannot be undone.</p>
+                        <div class="modal-buttons">
+                            <button id="confirmYes" class="modal-btn confirm-yes-btn">Yes, Clear All</button>
+                            <button id="confirmNo" class="modal-btn confirm-no-btn">No, Cancel</button>
+                        </div>
+                    </div>
+                </div>
+    
+                <div id="imageCropperModal" class="modal-overlay">
+                    <div class="modal-content cropper-modal">
+                        <p class="cropper-modal-title">Crop & Resize Image</p>
+                        <div class="img-container">
+                            <img id="imageToCrop" src="" alt="Image to Crop">
+                        </div>
+                        <div class="cropper-controls">
+                            <button class="cropper-btn" id="rotateLeftBtn" title="Rotate Left">⟲</button>
+                            <button class="cropper-btn" id="rotateRightBtn" title="Rotate Right">⟳</button>
+                            <button class="cropper-btn" id="zoomInBtn" title="Zoom In">+</button>
+                            <button class="cropper-btn" id="zoomOutBtn" title="Zoom Out">-</button>
+                            <button class="cropper-btn" id="resetCropperBtn" title="Reset">⟳ Reset</button>
+                        </div>
+                        <div class="modal-buttons">
+                            <button id="cropDoneBtn" class="modal-btn confirm-yes-btn">Done Cropping</button>
+                            <button id="cropCancelBtn" class="modal-btn confirm-no-btn">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
     </div>
 
     <!-- Original script dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script src="script.js" defer></script>
+    <!-- IMPORTANT: 'defer' attribute removed to fix the initialization error -->
+    <script src="script.js"></script>
 
-    <!-- UPDATED SCRIPT: Handles login state and calls initializeApp() from script.js -->
+    <!-- This script handles login state and calls initializeApp() from script.js -->
     <script>
-        let appInitialized = false; // Flag to prevent multiple initializations
+        let appInitialized = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             const appContent = document.getElementById('app-content');
+            const loginButtonContainer = document.querySelector('[data-netlify-identity-button]');
 
             const updateUserState = (user) => {
                 if (user) {
-                    // If user is logged in, show the app content
                     appContent.style.display = 'block';
-                    
-                    // Check the flag and initialize the app if it hasn't been already
+                    // Position the login button inside the app wrapper for logged-in state
+                    const appWrapper = document.querySelector('.app-wrapper');
+                    appWrapper.insertBefore(loginButtonContainer, appContent);
+
                     if (!appInitialized) {
                         initializeApp();
                         appInitialized = true;
                     }
                 } else {
-                    // If user is logged out, hide the app content
                     appContent.style.display = 'none';
                 }
             };
 
-            // Listen for Netlify Identity events
-            netlifyIdentity.on('init', user => {
+            netlifyIdentity.on('init', user => updateUserState(user));
+            netlifyIdentity.on('login', user => {
                 updateUserState(user);
+                netlifyIdentity.close();
             });
-
-            netlifyIdentity.on('login', (user) => {
-                updateUserState(user);
-                netlifyIdentity.close(); // Close the login modal
-            });
-
             netlifyIdentity.on('logout', () => {
                 updateUserState(null);
-                appInitialized = false; // Reset flag on logout
+                appInitialized = false;
             });
         });
     </script>
 
 </body>
 </html>
+

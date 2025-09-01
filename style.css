@@ -90,13 +90,18 @@ body.dark-mode {
 /* General Body and Font Styles */
 /* --- CORRECTED LAYOUT RULES --- */
 
-/* 1. Corrected Body Style (No Flexbox) */
+/* --- CORRECTED LAYOUT RULES --- */
+
+/* 1. Restore the original body style for centering */
 body {
     font-family: 'Inter', 'Lato', Arial, sans-serif;
     line-height: 1.65;
     letter-spacing: 0.01em;
     margin: 0;
     padding: 20px;
+    display: flex; /* This is the key to centering */
+    justify-content: center;
+    align-items: flex-start; /* Aligns to top, good for scrolling */
     min-height: 100vh;
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -104,22 +109,33 @@ body {
     color: var(--text-color-primary);
 }
 
-/* 2. Corrected Header Style */
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* This is the key vertical alignment fix */
-    max-width: 800px; /* Match the main container's width */
-    margin: 0 auto 25px auto; /* Center the header and add space below */
+/* 2. New wrapper to constrain width and center login button */
+.app-wrapper {
     width: 100%;
-    box-sizing: border-box;
+    max-width: 700px; /* This brings back the original, less-wide feel */
 }
 
-/* 3. Re-confirm Container Centering */
+/* 3. Style the login/logout button area */
+[data-netlify-identity-button] {
+    text-align: right;
+    margin-bottom: 15px; /* Space between button and main app box */
+    font-size: 1.1em;
+}
+[data-netlify-identity-button] a {
+    color: var(--text-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+[data-netlify-identity-button] a:hover {
+    color: var(--button-primary-bg);
+}
+
+
+/* 4. Corrected container (no longer needs margin: auto) */
 .container {
-    max-width: 800px;
+    max-width: 700px; /* Redundant but safe */
     width: 100%;
-    margin: 20px auto; /* This centers the main content block */
     padding: 30px;
     border-radius: 12px;
     box-sizing: border-box;
@@ -127,6 +143,17 @@ body {
     background: var(--bg-color-main);
     box-shadow: 0 8px 25px var(--shadow-light);
 }
+
+
+/* 5. Corrected Header Style (restored to original) */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align logo and toggle to top */
+    margin-bottom: 25px;
+    width: 100%;
+}
+
 
 /* Logo Styling - now inside top-header */
 .logo-container {
