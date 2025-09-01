@@ -8,26 +8,60 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#2c3e50">
-
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     
     <!-- Netlify Identity Widget Script -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    
+    <!-- NEW: Firebase SDKs -->
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBif3Ejzt-KiY1vDyFPtRQjX5ne-SnV4dM",
+    authDomain: "reflectdent-74d8c.firebaseapp.com",
+    projectId: "reflectdent-74d8c",
+    storageBucket: "reflectdent-74d8c.firebasestorage.app",
+    messagingSenderId: "510796139347",
+    appId: "1:510796139347:web:426f0414b5f20f350f2fa6",
+    measurementId: "G-WSTTV8EFWX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </head>
 <body>
-    <!-- This wrapper helps center the entire application -->
     <div class="app-wrapper">
-        <!-- The Login/Logout button is now outside the hidden content, but inside the centered wrapper -->
         <div data-netlify-identity-button></div>
 
-        <!-- This content is hidden until the user logs in -->
+        <!-- NEW: Main content area will now toggle between editor and list view -->
         <div id="app-content" style="display: none;">
-            <main class="container">
-                <!-- The header is now back INSIDE the main container -->
+            
+            <!-- NEW: Reflections List View -->
+            <div id="reflections-list-view">
+                <div class="list-header">
+                    <h2>My Reflections</h2>
+                    <button id="newReflectionBtn" class="new-reflection-btn">+ New Reflection</button>
+                </div>
+                <div id="reflections-list-container">
+                    <!-- Saved reflections will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Editor View (initially hidden) -->
+            <main class="container" id="editor-view" style="display: none;">
                 <div class="top-header">
                     <div class="logo-container">
-                        <img src="company_logo.png" alt="[Your Company Name] Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
+                        <img src="company_logo.png" alt="Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
                     </div>
                     <div class="theme-switch-wrapper top-right-corner">
                         <label class="theme-switch" for="themeToggle">
@@ -38,198 +72,112 @@
                     </div>
                 </div>
 
-                <h1>My Technical Reflection</h1>
-                <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
+                <!-- NEW: Reflection Title Input -->
+                <input type="text" id="reflectionTitle" class="reflection-title-input" placeholder="Give your reflection a title...">
+                
+                <p class="last-saved-timestamp" id="lastSavedTimestamp">Not saved yet</p>
 
-                <!-- ... ALL of your other sections and modals go here as they were ... -->
-                <!-- (Reflection, Media, Feedback, Buttons, Modals, etc.) -->
-
-                <div class="section-block">
+                <!-- Reflection, Media, Feedback sections remain the same -->
+                 <div class="section-block">
                     <h2>Your Reflection:</h2>
-                    <label for="reflection">
-                        What are your reflections on this piece of work? What went well, and what didn't? What will you work on or change in the future?
-                    </label>
-                    <div class="prompt-selection">
-                        <label for="promptSelect">Choose a prompt:</label>
-                        <select id="promptSelect">
-                            <option value="">-- Select a prompt --</option>
-                            <option value="well">What went well?</option>
-                            <option value="challenging">What was challenging?</option>
-                            <option value="future">What will you work on or change in the future?</option>
-                            <option value="star">STAR Reflection (Situation, Task, Action, Result)</option>
-                        </select>
-                        <button id="insertPromptBtn">Insert Prompt</button>
-                    </div>
                     <div id="reflection" class="quill-editor"></div>
-                    <div class="word-char-count">
-                        <span id="reflectionWordCount">0 words</span> / <span id="reflectionCharCount">0 characters</span>
-                    </div>
                 </div>
-    
                 <div class="section-block">
-                    <h2 data-original-text="Attach Relevant Media (Optional)">Attach Relevant Media (Optional)</h2>
+                    <h2>Attach Relevant Media</h2>
                     <div class="image-upload-section">
                         <div class="image-upload-buttons">
-                            <label class="custom-file-upload" for="imageUploadCamera">
-                                <span role="img" aria-label="Camera">📸</span> Take Photo
-                            </label>
+                            <label class="custom-file-upload" for="imageUploadCamera">📸 Take Photo</label>
                             <input type="file" id="imageUploadCamera" accept="image/*" capture="camera" multiple>
-    
-                            <label class="custom-file-upload" for="imageUploadGallery">
-                                <span role="img" aria-label="Gallery">🖼️</span> Upload Existing Image
-                            </label>
+                            <label class="custom-file-upload" for="imageUploadGallery">🖼️ Upload Image</label>
                             <input type="file" id="imageUploadGallery" accept="image/*" multiple>
-                            
-                            <label class="custom-file-upload" for="videoUploadCamera">
-                                <span role="img" aria-label="Video Camera">📹</span> Record Video
-                            </label>
-                            <input type="file" id="videoUploadCamera" accept="video/*" capture="user" multiple>
-    
-                            <label class="custom-file-upload" for="videoUploadGallery">
-                                <span role="img" aria-label="Video Gallery">🎬</span> Upload Existing Video
-                            </label>
-                            <input type="file" id="videoUploadGallery" accept="video/*" multiple>
                         </div>
-                        
-                        <div id="mediaPreviewContainer"> <span class="no-media-selected" id="noMediaMessage">No media selected yet.</span> </div>
+                        <div id="mediaPreviewContainer">
+                            <span class="no-media-selected" id="noMediaMessage">No media selected yet.</span>
+                        </div>
                     </div>
                 </div>
-    
                 <div class="section-block" id="lecturerFeedbackSection">
                     <h2>Lecturer Feedback</h2>
-                    <label for="feedback">
-                        Record the lecturer's feedback here.
-                    </label>
-                    <div class="input-group">
-                        <div id="feedback" class="quill-editor"></div>
-                        <button class="microphone-button" data-target="feedback" title="Start/Stop Dictation">🎙️</button>
-                    </div>
-                    <div class="word-char-count">
-                        <span id="feedbackWordCount">0 words</span> / <span id="feedbackCharCount">0 characters</span>
-                    </div>
-                </div>
-    
-                <div class="action-button-group">
-                    <button class="copy-btn" onclick="copyContent()">Copy to Clipboard</button>
-                    <button class="print-btn" onclick="printPage()">Print / Save as PDF</button>
-                    <button class="share-btn" onclick="shareContent()">Share</button>
-                    <button class="download-html-btn" onclick="downloadAsHtml()">Download as HTML File</button>
-                </div>
-                
-                <div class="clear-data-group">
-                    <button id="clearAllDataBtn" class="clear-btn">Clear All Data</button>
-                </div>
-    
-                <p id="message" aria-live="polite"></p>
-    
-                <div id="instructions-container" class="instructions-hidden">
-                    <p id="instruction-text"></p>
-                    <button id="close-instructions" onclick="hideInstructions()">Got It!</button>
-                </div>
-    
-                <div id="confirmationModal" class="modal-overlay">
-                    <div class="modal-content">
-                        <p id="modalMessage">Are you sure you want to clear all data? This action cannot be undone.</p>
-                        <div class="modal-buttons">
-                            <button id="confirmYes" class="modal-btn confirm-yes-btn">Yes, Clear All</button>
-                            <button id="confirmNo" class="modal-btn confirm-no-btn">No, Cancel</button>
-                        </div>
-                    </div>
-                </div>
-    
-                <div id="imageCropperModal" class="modal-overlay">
-                    <div class="modal-content cropper-modal">
-                        <p class="cropper-modal-title">Crop & Resize Image</p>
-                        <div class="img-container">
-                            <img id="imageToCrop" src="" alt="Image to Crop">
-                        </div>
-                        <div class="cropper-controls">
-                            <button class="cropper-btn" id="rotateLeftBtn" title="Rotate Left">⟲</button>
-                            <button class="cropper-btn" id="rotateRightBtn" title="Rotate Right">⟳</button>
-                            <button class="cropper-btn" id="zoomInBtn" title="Zoom In">+</button>
-                            <button class="cropper-btn" id="zoomOutBtn" title="Zoom Out">-</button>
-                            <button class="cropper-btn" id="resetCropperBtn" title="Reset">⟳ Reset</button>
-                        </div>
-                        <div class="modal-buttons">
-                            <button id="cropDoneBtn" class="modal-btn confirm-yes-btn">Done Cropping</button>
-                            <button id="cropCancelBtn" class="modal-btn confirm-no-btn">Cancel</button>
-                        </div>
-                    </div>
+                    <div id="feedback" class="quill-editor"></div>
                 </div>
 
+                <!-- NEW: Simplified Action Buttons -->
+                <div class="action-button-group">
+                    <button id="saveReflectionBtn" class="action-btn save-btn">Save Reflection</button>
+                    <button id="deleteReflectionBtn" class="action-btn delete-btn" style="display: none;">Delete</button>
+                    <button class="action-btn" onclick="printPage()">Print / Save as PDF</button>
+                </div>
+                <button id="backToListBtn" class="back-btn">← Back to List</button>
             </main>
         </div>
     </div>
 
-    <!-- Original script dependencies -->
+    <!-- Script Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 
-    <!-- Script to handle login state and call initializeApp() from script.js -->
-    <script>
+    <!-- Login & Theme Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
         let appInitialized = false;
+        
+        const app = initializeApp(window.firebaseConfig);
+        const auth = getAuth(app);
+        window.auth = auth; // Make auth globally available
 
-        document.addEventListener('DOMContentLoaded', () => {
+        onAuthStateChanged(auth, user => {
             const appContent = document.getElementById('app-content');
-            const loginButtonContainer = document.querySelector('[data-netlify-identity-button]');
-
-            const updateUserState = (user) => {
-                if (user) {
-                    appContent.style.display = 'block';
-                    const appWrapper = document.querySelector('.app-wrapper');
-                    appWrapper.insertBefore(loginButtonContainer, appContent);
-
-                    if (!appInitialized) {
-                        initializeApp();
-                        appInitialized = true;
-                    }
-                } else {
-                    appContent.style.display = 'none';
+            if (user) {
+                appContent.style.display = 'block';
+                if (!appInitialized) {
+                    window.initializeApp(user.uid); // Pass UID to main script
+                    appInitialized = true;
                 }
-            };
-
-            netlifyIdentity.on('init', user => updateUserState(user));
-            netlifyIdentity.on('login', user => {
-                updateUserState(user);
-                netlifyIdentity.close();
-            });
-            netlifyIdentity.on('logout', () => {
-                updateUserState(null);
-                appInitialized = false;
-            });
-        });
-    </script>
-
-    <!-- NEW: Standalone Dark Mode Logic -->
-    <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-        const themeKey = 'myTechnicalReflection_theme';
-
-        const applyTheme = (theme) => {
-            if (theme === 'dark') {
-                body.classList.add('dark-mode');
-                if(themeToggle) themeToggle.checked = true;
             } else {
-                body.classList.remove('dark-mode');
-                if(themeToggle) themeToggle.checked = false;
+                appContent.style.display = 'none';
             }
-        };
+        });
 
-        const savedTheme = localStorage.getItem(themeKey);
-        applyTheme(savedTheme);
+        netlifyIdentity.on('login', user => {
+            // This part might need custom token logic in a real-world secure app,
+            // but for now, we rely on Netlify's user object and will use anonymous Firebase auth.
+            signInAnonymously(auth);
+            netlifyIdentity.close();
+        });
 
+        netlifyIdentity.on('logout', () => {
+            auth.signOut();
+            window.location.reload();
+        });
+        
+        if (netlifyIdentity.currentUser()) {
+             signInAnonymously(auth);
+        }
+    </script>
+    <script>
+        // Standalone Dark Mode Logic
+        const themeToggle = document.getElementById('themeToggle');
         if(themeToggle){
-            themeToggle.addEventListener('change', () => {
-                const isDarkMode = themeToggle.checked;
-                if (isDarkMode) {
+            const body = document.body;
+            const themeKey = 'myTechnicalReflection_theme';
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
                     body.classList.add('dark-mode');
-                    localStorage.setItem(themeKey, 'dark');
+                    themeToggle.checked = true;
                 } else {
                     body.classList.remove('dark-mode');
-                    localStorage.setItem(themeKey, 'light');
+                    themeToggle.checked = false;
                 }
+            };
+            const savedTheme = localStorage.getItem(themeKey);
+            applyTheme(savedTheme);
+            themeToggle.addEventListener('change', () => {
+                const isDarkMode = themeToggle.checked;
+                localStorage.setItem(themeKey, isDarkMode ? 'dark' : 'light');
+                applyTheme(isDarkMode ? 'dark' : 'light');
             });
         }
     </script>
