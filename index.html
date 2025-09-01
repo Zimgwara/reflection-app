@@ -13,9 +13,9 @@
     <!-- Netlify Identity Widget Script -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
-    <!-- Corrected Firebase Config Setup -->
+    <!-- Firebase Config Setup -->
     <script>
-      // This sets up your config object to be used by other scripts.
+      // Replace this with your actual Firebase config object
       window.firebaseConfig = {
         apiKey: "AIzaSyBif3Ejzt-KiY1vDyFPtRQjX5ne-SnV4dM",
         authDomain: "reflectdent-74d8c.firebaseapp.com",
@@ -91,12 +91,12 @@
                     <button class="action-btn" onclick="printPage()">Print / Save as PDF</button>
                 </div>
                 <button id="backToListBtn" class="back-btn">← Back to List</button>
-                <p id="message" aria-live="polite"></p> <!-- Message element for notifications -->
+                <p id="message" aria-live="polite"></p> 
             </main>
         </div>
     </div>
 
-    <!-- NEW: Deletion Confirmation Modal -->
+    <!-- Deletion Confirmation Modal -->
     <div id="deleteConfirmationModal" class="modal-overlay">
         <div class="modal-content">
             <p>Are you sure you want to delete this reflection? This action cannot be undone.</p>
@@ -119,12 +119,10 @@
 
         let appInitialized = false;
         
-        // --- Single point of Firebase initialization ---
         const app = initializeApp(window.firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // This function attempts to get a Firebase token from Netlify's backend
         const getFirebaseToken = async (netlifyToken) => {
             const response = await fetch('/.netlify/functions/get-firebase-token', {
                 method: 'POST',
@@ -133,6 +131,8 @@
                 }
             });
             if (!response.ok) {
+                const errorBody = await response.text();
+                console.error("Token function failed:", errorBody);
                 throw new Error('Failed to get Firebase token.');
             }
             const { token } = await response.json();
@@ -144,7 +144,7 @@
             if (user) {
                 appContent.style.display = 'block';
                 if (!appInitialized) {
-                    window.initializeApp(db, user.uid); // Pass DB and UID to main script
+                    window.initializeApp(db, user.uid);
                     appInitialized = true;
                 }
             } else {
@@ -152,8 +152,7 @@
             }
         });
         
-        // Handle login from Netlify Identity
-        netlifyIdentity.on('login', async (user) => {
+        const handleLogin = async (user) => {
             try {
                 const firebaseToken = await getFirebaseToken(user.token.access_token);
                 await signInWithCustomToken(auth, firebaseToken);
@@ -162,23 +161,20 @@
             } finally {
                 netlifyIdentity.close();
             }
-        });
+        };
+        
+        netlifyIdentity.on('login', handleLogin);
 
         netlifyIdentity.on('logout', () => {
             auth.signOut();
             window.location.reload();
         });
         
-        // Check for logged in user on page load
-        const netlifyUser = netlifyIdentity.currentUser();
-        if (netlifyUser) {
-             try {
-                const firebaseToken = await getFirebaseToken(netlifyUser.token.access_token);
-                await signInWithCustomToken(auth, firebaseToken);
-            } catch (error) {
-                console.error("Initial Firebase sign-in failed:", error);
+        netlifyIdentity.on('init', (user) => {
+            if (user) {
+                handleLogin(user);
             }
-        }
+        });
     </script>
     <script>
         // Standalone Dark Mode Logic
