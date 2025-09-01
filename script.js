@@ -952,7 +952,7 @@ async function clearAppData() {
 
 
 // --- DOMContentLoaded: All event listeners and initial setup ---
-document.addEventListener('DOMContentLoaded', async () => {
+async function initializeApp() {
     // Initialize IndexedDB
     await openDatabase(); // Ensure DB is open before trying to load/save content
 
