@@ -13,10 +13,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
 </head>
 <body>
-    
+
     <div class="top-header">
         <div class="logo-container">
             <img src="company_logo.png" alt="[Your Company Name] Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
@@ -37,51 +36,57 @@
         <main class="container">
             <h1>My Technical Reflection</h1>
             <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
-    
-             <div class="section-block">
-                 <h2>Your Reflection:</h2>
-                 </div>
-    
-             <div id="imageCropperModal" class="modal-overlay">
-                 </div>
-        </main>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script src="script.js" defer></script>
+            <div class="section-block">
+                <h2>Your Reflection:</h2>
+                <label for="reflection">
+                    What are your reflections on this piece of work? What went well, and what didn't? What will you work on or change in the future?
+                </label>
+                <div class="prompt-selection">
+                    <label for="promptSelect">Choose a prompt:</label>
+                    <select id="promptSelect">
+                        <option value="">-- Select a prompt --</option>
+                        <option value="well">What went well?</option>
+                        <option value="challenging">What was challenging?</option>
+                        <option value="future">What will you work on or change in the future?</option>
+                        <option value="star">STAR Reflection (Situation, Task, Action, Result)</option>
+                    </select>
+                    <button id="insertPromptBtn">Insert Prompt</button>
+                </div>
+                <div id="reflection" class="quill-editor"></div>
+                <div class="word-char-count">
+                    <span id="reflectionWordCount">0 words</span> / <span id="reflectionCharCount">0 characters</span>
+                </div>
+            </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const appContent = document.getElementById('app-content');
-            const loginButton = document.querySelector('[data-netlify-identity-button]');
+            <div class="section-block">
+                <h2 data-original-text="Attach Relevant Media (Optional)">Attach Relevant Media (Optional)</h2>
+                <div class="image-upload-section">
+                    <div class="image-upload-buttons">
+                        <label class="custom-file-upload" for="imageUploadCamera">
+                            <span role="img" aria-label="Camera">📸</span> Take Photo
+                        </label>
+                        <input type="file" id="imageUploadCamera" accept="image/*" capture="camera" multiple>
 
-            const updateUserState = (user) => {
-                if (user) {
-                    // If user is logged in, show the app and hide the login button prompt
-                    appContent.style.display = 'block';
-                    // The widget automatically changes the button to show user email and a logout option
-                } else {
-                    // If user is logged out, hide the app
-                    appContent.style.display = 'none';
-                }
-            };
+                        <label class="custom-file-upload" for="imageUploadGallery">
+                            <span role="img" aria-label="Gallery">🖼️</span> Upload Existing Image
+                        </label>
+                        <input type="file" id="imageUploadGallery" accept="image/*" multiple>
+                        
+                        <label class="custom-file-upload" for="videoUploadCamera">
+                            <span role="img" aria-label="Video Camera">📹</span> Record Video
+                        </label>
+                        <input type="file" id="videoUploadCamera" accept="video/*" capture="user" multiple>
 
-            // Initialize the state when the page loads
-            updateUserState(netlifyIdentity.currentUser());
+                        <label class="custom-file-upload" for="videoUploadGallery">
+                            <span role="img" aria-label="Video Gallery">🎬</span> Upload Existing Video
+                        </label>
+                        <input type="file" id="videoUploadGallery" accept="video/*" multiple>
+                    </div>
+                    
+                    <div id="mediaPreviewContainer"> <span class="no-media-selected" id="noMediaMessage">No media selected yet.</span> </div>
+                </div>
+            </div>
 
-            // Listen for login events
-            netlifyIdentity.on('login', (user) => {
-                updateUserState(user);
-                netlifyIdentity.close(); // Close the login modal
-            });
-
-            // Listen for logout events
-            netlifyIdentity.on('logout', () => {
-                updateUserState(null);
-            });
-        });
-    </script>
-
-</body>
-</html>
+            <div class="section-block" id="lecturerFeedbackSection">
+                <h2>Lecturer Feedback</h2>
