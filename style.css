@@ -1,0 +1,1163 @@
+/* Import Google Fonts - Inter and Lato */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lato:wght@300;400;700&display=swap');
+
+/* CSS Variables for Themiong */
+:root {
+    --bg-color-light: #eef2f7;
+    --bg-color-main: #ffffff;
+    --text-color-primary: #333;
+    --text-color-secondary: #555;
+    --text-color-heading-main: #2c3e50;
+    --text-color-heading-section: #2980b9;
+    --border-color-light: #e0e0e0;
+    --border-color-medium: #ccc;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --section-bg-color: #fafafa;
+    --input-focus-border: #2980b9;
+    --input-focus-shadow: rgba(41, 128, 185, 0.2);
+    --message-color: #2980b9;
+    --instructions-bg: #ecf0f1;
+    --instructions-border: #bdc3c7;
+    --button-primary-bg: #3498db;
+    --button-primary-hover-bg: #2980b9;
+    --mic-button-bg: #f39c12;
+    --mic-button-hover-bg: #e67e22;
+    --mic-listening-bg: #e74c3c;
+    --mic-listening-shadow: rgba(231, 76, 60, 0.4);
+    --upload-button-bg: #95a5a6;
+    --upload-button-hover-bg: #7f8c8d;
+    --remove-button-bg: #e74c3c;
+    --remove-button-hover-bg: #c0392b;
+    --image-preview-bg: #fdfdfd;
+    --clear-button-bg: #e74c3c; /* Added for Clear All Data button */
+    --clear-button-hover-bg: #c0392b; /* Added for Clear All Data button hover */
+
+    /* Quill Icon Colors - Light Mode */
+    --quill-icon-color: #444; /* Default Quill icon color */
+    --quill-icon-hover-bg: rgba(0, 0, 0, 0.1);
+    --quill-stroke-color: #444;
+    --quill-fill-color: #444;
+    --quill-picker-bg: #fff;
+    --quill-picker-border: #ccc;
+    --quill-picker-text-color: #333;
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+    --bg-color-light: #2c3e50; /* Darker background for body */
+    --bg-color-main: #34495e; /* Dark background for container */
+    --text-color-primary: #ecf0f1; /* Light text */
+    --text-color-secondary: #bdc3c7;
+    --text-color-heading-main: #ecf0f1;
+    --text-color-heading-section: #5dade2; /* Lighter blue for dark mode headings */
+    --border-color-light: #4a667d;
+    --border-color-medium: #607d9b;
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.4);
+    --section-bg-color: #3b536b; /* Darker background for sections */
+    --input-focus-border: #5dade2;
+    --input-focus-shadow: rgba(93, 173, 226, 0.3);
+    --message-color: #5dade2;
+    --instructions-bg: #3b536b;
+    --instructions-border: #607d9b;
+    /* Buttons can remain same or slightly adjusted for consistency */
+    --button-primary-bg: #3498db;
+    --button-primary-hover-bg: #2980b9;
+    --mic-button-bg: #f39c12;
+    --mic-button-hover-bg: #e67e22;
+    --mic-listening-bg: #e74c3c;
+    --mic-listening-shadow: rgba(231, 76, 60, 0.4);
+    --upload-button-bg: #95a5a6;
+    --upload-button-hover-bg: #7f8c8d;
+    --remove-button-bg: #e74c3c;
+    --remove-button-hover-bg: #c0392b;
+    --image-preview-bg: #3b536b; /* Darker for image preview background */
+    --clear-button-bg: #e74c3c; /* Added for Clear All Data button */
+    --clear-button-hover-bg: #c0392b; /* Added for Clear All Data button hover */
+
+    /* Quill Icon Colors - Dark Mode */
+    --quill-icon-color: #ecf0f1; /* White icons */
+    --quill-icon-hover-bg: rgba(255, 255, 255, 0.1);
+    --quill-stroke-color: #ecf0f1;
+    --quill-fill-color: #ecf0f1;
+    --quill-picker-bg: #3b536b; /* Darker background for dropdowns */
+    --quill-picker-border: #607d9b;
+    --quill-picker-text-color: #ecf0f1;
+}
+
+
+/* General Body and Font Styles */
+body {
+    font-family: 'Inter', 'Lato', Arial, sans-serif;
+    line-height: 1.65;
+    letter-spacing: 0.01em;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for theme change */
+
+    background-color: var(--bg-color-light);
+    color: var(--text-color-primary);
+}
+
+.container {
+    max-width: 700px;
+    width: 100%;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for theme change */
+
+    background: var(--bg-color-main);
+    box-shadow: 0 8px 25px var(--shadow-light);
+}
+
+/* --- Top Header for Logo and Theme Toggle --- */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align logo and toggle to top */
+    margin-bottom: 25px; /* Space below the header */
+    width: 100%; /* Take full width of container */
+}
+
+/* Logo Styling - now inside top-header */
+.logo-container {
+    text-align: left; /* Align logo to the left */
+    margin-bottom: 0; /* Remove bottom margin here */
+}
+
+.company-logo {
+    max-width: 160px;
+    height: auto;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+    background-color: var(--section-bg-color);
+}
+
+h1 {
+    color: var(--text-color-heading-main);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+/* Timestamp display */
+.last-saved-timestamp {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--text-color-secondary);
+    margin-top: -20px;
+    margin-bottom: 25px;
+    transition: color 0.3s ease;
+}
+
+/* --- Theme Toggle Switch moved to top-right-corner --- */
+.theme-switch-wrapper.top-right-corner {
+    /* No need for specific margin/padding here as it's flexed within top-header */
+    margin-top: 5px; /* Adjust vertical position relative to logo */
+}
+
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--upload-button-bg);
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 28px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--button-primary-bg);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--button-primary-bg);
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(22px);
+  -ms-transform: translateX(22px);
+  transform: translateX(22px);
+}
+
+.theme-label {
+    font-weight: 500;
+    transition: color 0.3s ease;
+    color: var(--text-color-primary);
+}
+
+/* --- Prompt Selection moved into .section-block --- */
+.prompt-selection {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px; /* Space below the label */
+    margin-bottom: 15px; /* Space above the textarea */
+    padding: 10px; /* Internal padding for the prompt area */
+    border-radius: 8px; /* Rounded corners */
+    justify-content: flex-start; /* Align elements to start */
+    
+    /* Ensure it takes full width of its parent's content area */
+    width: 100%; /* Explicitly set to 100% to match textarea's effective width */
+    box-sizing: border-box; /* Include padding/border in explicit width */
+    background-color: var(--bg-color-main); /* Match main background for subtle look */
+    border: 1px solid var(--border-color-light); /* Subtle border */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+}
+
+.prompt-selection label {
+    margin-bottom: 0;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    color: var(--text-color-secondary);
+    flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+#promptSelect {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    flex-grow: 1; /* Allow select to grow */
+    max-width: none; /* REMOVED previous max-width to allow full growth */
+    width: 100%; /* Make it take full width on its line */
+
+
+    border: 1px solid var(--border-color-medium);
+    background-color: var(--bg-color-main);
+    color: var(--text-color-primary);
+}
+
+#insertPromptBtn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px var(--shadow-light);
+    flex-shrink: 0; /* Prevent button from shrinking */
+
+    /* Force button to new line and center it */
+    width: 100%; /* Take full width of parent */
+    margin: 10px auto 0 auto; /* Top margin + auto horizontal margins for centering */
+
+    background-color: var(--button-primary-bg);
+    color: white;
+}
+
+#insertPromptBtn:hover {
+    background-color: var(--button-primary-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px var(--shadow-medium);
+}
+
+
+/* Section Blocks */
+.section-block {
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+
+    background-color: var(--section-bg-color);
+    border: 1px solid var(--border-color-light);
+}
+
+.section-block label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+    color: var(--text-color-secondary);
+}
+
+h2 {
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    color: var(--text-color-heading-section);
+}
+
+/* Quill Editor specific styling */
+.quill-editor {
+    /* Quill automatically adds .ql-container and .ql-editor */
+    min-height: 140px; /* Consistent with previous textarea min-height */
+    border: 1px solid var(--border-color-medium);
+    border-radius: 8px; /* Match textarea border-radius */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    background-color: var(--bg-color-main); /* Ensure editor background matches app theme */
+    color: var(--text-color-primary); /* Ensure editor text color matches app theme */
+}
+
+/* Specific styling for Quill's toolbar */
+.ql-toolbar.ql-snow {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-color: var(--border-color-medium);
+    background-color: var(--section-bg-color); /* Toolbar background */
+    transition: background-color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Specific styling for Quill's editor area (the content itself) */
+.ql-container.ql-snow {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-color: var(--border-color-medium);
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    background-color: var(--bg-color-main);
+    color: var(--text-color-primary);
+}
+
+/* Adjust Quill's focus state to match your app's focus style */
+.ql-container.ql-snow.ql-active {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-shadow);
+}
+.ql-editor:focus {
+    outline: none; /* Remove default browser outline */
+}
+
+/* --- Quill.js Dark Mode Icon Styling --- */
+/* Target specific SVG paths to change their color */
+/* These rules target the SVG elements within Quill's buttons/pickers */
+body.dark-mode .ql-snow .ql-stroke {
+    stroke: var(--quill-stroke-color); /* White for dark mode */
+}
+body.dark-mode .ql-snow .ql-fill {
+    fill: var(--quill-fill-color); /* White for dark mode */
+}
+/* For text inside dropdowns (e.g., font size/family text) */
+body.dark-mode .ql-snow .ql-picker {
+    color: var(--quill-picker-text-color);
+}
+/* For the dropdown options when expanded */
+body.dark-mode .ql-snow .ql-picker.ql-expanded .ql-picker-options {
+    background-color: var(--quill-picker-bg);
+    border-color: var(--quill-picker-border);
+}
+body.dark-mode .ql-snow .ql-picker-item:hover,
+body.dark-mode .ql-snow .ql-picker-item.ql-selected {
+    background-color: var(--quill-icon-hover-bg);
+}
+/* Ensure toolbar buttons themselves also change color for active states */
+body.dark-mode .ql-snow .ql-toolbar button:hover .ql-stroke,
+body.dark-mode .ql-snow .ql-toolbar button:hover .ql-fill,
+body.dark-mode .ql-snow .ql-toolbar button.ql-active .ql-stroke,
+body.dark-mode .ql-snow .ql-toolbar button.ql-active .ql-fill,
+body.dark-mode .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+body.dark-mode .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill {
+    stroke: var(--quill-icon-color);
+    fill: var(--quill-icon-color);
+}
+
+
+/* Word/Character Count Styling */
+.word-char-count {
+    text-align: right;
+    font-size: 0.85em;
+    margin-top: 20px; /* Increased margin-top for more separation from editor */
+    font-style: italic;
+    transition: color 0.3s ease;
+    color: var(--text-color-secondary);
+}
+
+
+/* Microphone Button Styling (adjusted for Quill) */
+.input-group {
+    position: relative;
+    margin-bottom: 0;
+    /* Adjusted to work with Quill editor */
+    display: flex;
+    flex-direction: column; /* Stack Quill and microphone button on top of each other by default */
+    align-items: flex-end; /* Align microphone button to the right */
+    gap: 10px; /* Space between Quill editor and mic button */
+}
+
+/* Ensure Quill editor in input-group takes full width */
+.input-group .quill-editor {
+    width: 100%; /* Make Quill editor fill input-group width */
+    margin-bottom: 0; /* Remove default margin from Quill container */
+}
+
+.microphone-button {
+    position: static; /* No longer absolute to fit new flex layout */
+    margin-top: 0; /* Adjust spacing */
+    width: auto; /* Allow content to dictate width */
+    padding: 10px 15px; /* Adjust padding */
+    border-radius: 8px; /* Make it more rectangular */
+    font-size: 1.1rem; /* Slightly smaller icon to fit new size */
+    box-shadow: 0 2px 5px var(--shadow-medium); /* Lighter shadow */
+
+    background-color: var(--mic-button-bg);
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+}
+
+.microphone-button:hover {
+    background-color: var(--mic-button-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px var(--shadow-medium);
+}
+
+.microphone-button.listening {
+    background-color: var(--mic-listening-bg);
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from { transform: scale(1); box-shadow: 0 3px 8px var(--shadow-medium); }
+    to { transform: scale(1.15); box-shadow: 0 0 0 5px var(--mic-listening-shadow); }
+}
+
+/* Image/Video Upload Styling (Unified) */
+.image-upload-section { /* Renamed from .image-upload-section */
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Hide the actual file input elements */
+#imageUploadCamera, #imageUploadGallery, #videoUploadCamera, #videoUploadGallery {
+    display: none;
+}
+
+.image-upload-buttons {
+    display: block;
+    margin-top: 15px;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 12px 20px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    text-align: center;
+    white-space: nowrap;
+    margin: 5px;
+    box-shadow: 0 2px 5px var(--shadow-light);
+
+    background-color: var(--upload-button-bg);
+}
+
+.custom-file-upload:hover {
+    background-color: var(--upload-button-hover-bg);
+    transform: translateY(-2px);
+}
+    
+#mediaPreviewContainer { /* Updated ID from #imagePreviewContainer */
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 8px;
+    min-height: 80px;
+    align-items: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+
+    border: 1px dashed var(--border-color-medium);
+    background-color: var(--image-preview-bg); /* Reusing image-preview-bg for consistency */
+}
+
+.media-preview-wrapper { /* Updated class from .image-preview-wrapper */
+    position: relative;
+    display: inline-block;
+    padding: 6px;
+    border-radius: 8px;
+    width: 160px;
+    height: 160px;
+    overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+    border: 1px solid var(--border-color-light);
+    background-color: var(--bg-color-main);
+    box-shadow: 0 2px 6px var(--shadow-light);
+    flex-shrink: 0;
+}
+
+.uploaded-media-preview { /* New class for both img and video */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Maintain aspect ratio without cropping */
+    display: block;
+}
+
+.remove-media-button { /* Updated class from .remove-image-button */
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+    background-color: var(--remove-button-bg);
+    color: white;
+    box-shadow: 0 2px 5px var(--shadow-medium);
+}
+
+.remove-media-button:hover {
+    background-color: var(--remove-button-hover-bg);
+    transform: scale(1.15);
+}
+
+.no-media-selected { /* Updated class from .no-image-selected */
+    font-style: italic;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    transition: color 0.3s ease;
+    color: var(--text-color-secondary);
+}
+
+.action-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+button {
+    flex-grow: 1;
+    padding: 14px 25px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.15rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 3px 8px var(--shadow-light);
+    max-width: 250px;
+}
+
+button.copy-btn,
+.print-btn,
+.share-btn,
+.download-html-btn { /* Added new button to this group */
+    background-color: var(--button-primary-bg);
+}
+button.copy-btn:hover,
+.print-btn:hover,
+.share-btn:hover,
+.download-html-btn:hover { /* Added new button to this group */
+    background-color: var(--button-primary-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+
+/* Clear All Data Button's parent container for centering */
+.clear-data-group {
+    display: flex;
+    justify-content: center; /* This centers the button horizontally */
+    margin-top: 20px; /* Add some space above it */
+    margin-bottom: 20px; /* Add some space below it */
+}
+
+/* Clear All Data Button Styling */
+#clearAllDataBtn {
+    background-color: var(--clear-button-bg);
+    /* Remove margin auto and display block from here as centering is handled by parent */
+    /* width: auto; /* Allow content to dictate width, or set a max-width if desired */
+    max-width: 250px; /* Keep it consistent with other action buttons */
+    /* Ensure it doesn't flex-grow more than desired if in a flex container */
+    flex-shrink: 0; /* Prevent it from shrinking too much */
+}
+
+#clearAllDataBtn:hover {
+    background-color: var(--clear-button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+    
+#message {
+    margin-top: 25px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.95em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    transform: translateY(10px);
+
+    color: var(--message-color);
+}
+
+#message.show-message {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+
+/* --- Instructions Container Styles --- */
+#instructions-container {
+    padding: 20px;
+    margin-top: 30px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px var(--shadow-light);
+    text-align: center;
+    transition: all 0.4s ease-in-out;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: translateY(20px);
+    pointer-events: none;
+
+    background-color: var(--instructions-bg);
+    border: 1px solid var(--instructions-border);
+}
+
+#instructions-container.instructions-visible {
+    opacity: 1;
+    max-height: 300px;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+#instructions-container.instructions-hidden {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#instruction-text {
+    font-size: 1em;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    transition: color 0.3s ease;
+    color: var(--text-color-primary);
+}
+
+#close-instructions {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+
+    background-color: var(--button-primary-bg);
+    color: white;
+}
+
+#close-instructions:hover {
+    background-color: var(--button-primary-hover-bg);
+    transform: translateY(-1px);
+}
+
+/* --- Custom Confirmation Modal Styles --- */
+.modal-overlay {
+    display: none;    
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: var(--bg-color-main);
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px var(--shadow-medium);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-content p {
+    margin-bottom: 25px;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--text-color-primary);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px var(--shadow-light);
+}
+
+.confirm-yes-btn {
+    background-color: #e74c3c; /* Red for destructive action */
+    color: white;
+}
+
+.confirm-yes-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+}
+
+.confirm-no-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.confirm-no-btn:hover {
+    background-color: #545b62;
+    transform: translateY(-1px);
+}
+
+/* --- Cropper Modal Specific Styles --- */
+.cropper-modal {
+    max-width: 600px; /* Larger max-width for image content */
+    padding: 20px; /* Adjusted padding */
+}
+
+.cropper-modal-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-color-primary);
+    margin-bottom: 15px;
+}
+
+.img-container {
+    width: 100%;
+    max-width: 500px; /* Limit image container width */
+    height: 300px; /* Fixed height for cropper area */
+    background-color: #f0f0f0;
+    overflow: hidden; /* Important for Cropper.js */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px auto;
+    border: 1px solid var(--border-color-medium);
+    border-radius: 8px;
+}
+
+.img-container img {
+    /* Cropper.js will style this heavily, but initial max-width helps */
+    max-width: 100%;
+    display: block;
+}
+
+.cropper-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cropper-btn {
+    background-color: var(--button-primary-bg);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px var(--shadow-light);
+}
+
+.cropper-btn:hover {
+    background-color: var(--button-primary-hover-bg);
+    transform: translateY(-1px);
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .container {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+
+    .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .theme-switch-wrapper.top-right-corner {
+        margin-top: 0;
+        align-self: flex-start;
+    }
+
+    .prompt-selection {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    #promptSelect {
+        max-width: 100%;
+        width: 100%;
+    }
+    #insertPromptBtn {
+        width: 100%;
+        margin: 10px auto 0 auto;
+    }
+
+    .action-button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .action-button-group button {
+        max-width: 100%;
+    }
+
+    #clearAllDataBtn { /* Also make it full width on smaller screens */
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Adjust mic button when stacked */
+    .microphone-button {
+        position: static;
+        margin-top: 10px;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        padding: 15px;
+        font-size: 1.4rem; /* Revert to larger size for better tap target */
+    }
+
+    .image-upload-buttons {
+        flex-direction: column;
+    }
+    .custom-file-upload {
+        margin: 5px 0;
+    }
+
+    .modal-content {
+        padding: 20px;
+        max-width: 95%;
+    }
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .modal-btn {
+        width: 100%;
+    }
+
+    /* Cropper modal responsive adjustments */
+    .cropper-modal .img-container {
+        height: 250px; /* Slightly smaller for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        margin: 15px auto;
+        padding: 20px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    .custom-file-upload, button {
+        font-size: 0.95em;
+        padding: 10px 15px;
+    }
+}
+
+/* Print Specific Styles */
+@media print {
+    body {
+        background-color: #fff;
+        padding: 0;
+        margin: 0;
+        display: block;
+        justify-content: unset;
+        align-items: unset;
+        min-height: unset;
+    }
+    .container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        max-width: 100%;
+        width: auto;
+        margin: 0;
+        background: none;
+    }
+    /* Hide all UI elements not meant for print */
+    .action-button-group, #message, #instructions-container, .microphone-button, .remove-media-button, .app-controls, .word-char-count, .top-header .theme-switch-wrapper, .prompt-selection, .clear-data-group, .modal-overlay,
+    .section-block label[for="reflection"], /* Hide "What are your reflections..." label */
+    .section-block label[for="feedback"],    /* Hide "Record the lecturer's feedback here." label */
+    .image-upload-buttons /* Hide upload buttons */ {
+        display: none !important;
+    }
+
+
+    /* Ensure primary heading and timestamp are visible */
+    h1, .last-saved-timestamp {
+        display: block !important;
+        text-align: center !important;
+        color: #2c3e50 !important; /* Force original color */
+        margin-top: 20px !important;
+        margin-bottom: 10px !important;
+    }
+    .last-saved-timestamp {
+        font-size: 0.85em !important;
+        color: #777 !important;
+        margin-bottom: 20px !important;
+    }
+    /* Ensure logo is visible and centered */
+    .company-logo {
+        max-width: 120px; /* Slightly smaller for print */
+        height: auto;
+        display: block !important;
+        margin: 10px auto !important; /* Center it */
+        box-shadow: none !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+    }
+
+    /* General section print styles */
+    .section-block {
+        background-color: transparent !important; /* Default to transparent */
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 20px !important;
+    }
+    .section-block h2 {
+        color: #2c3e50 !important; /* Now matches "My Technical Reflection" heading color */
+        border-bottom: 1px solid #eee !important;
+        padding-bottom: 5px !important;
+        font-size: 1.4em !important;
+        font-weight: 600 !important; /* Ensure bold */
+        margin-bottom: 10px !important;
+    }
+
+    /* Quill editor content in print */
+    .ql-editor {
+        min-height: unset !important;
+        height: auto !important;
+        border: none !important;
+        padding: 0 !important;
+        background-color: transparent !important;
+        color: #333 !important; /* Ensure readable text color */
+        box-shadow: none !important;
+    }
+    /* Hide Quill toolbar in print */
+    .ql-toolbar.ql-snow {
+        display: none !important;
+    }
+    /* Remove borders around Quill editor container */
+    .ql-container.ql-snow {
+        border: none !important;
+    }
+
+    /* Print specific styling for lecturer feedback */
+    #lecturerFeedbackSection {
+        background-color: #f9f9f9 !important; /* Light grey background for feedback section */
+        border: 1px solid #e0e0e0 !important; /* Subtle border */
+        border-radius: 8px !important;
+        padding: 15px !important;
+        box-shadow: none !important;
+    }
+    #lecturerFeedbackSection h2 {
+        color: #2c3e50 !important; /* Darker heading for feedback in print, matching main title */
+        background-color: #f2f2f2 !important; /* Light grey background for heading bar */
+        padding: 5px 10px !important;
+        border-radius: 5px !important;
+        border: 1px solid #ccc !important;
+        margin-bottom: 10px !important;
+    }
+    #lecturerFeedbackSection .ql-editor {
+        background-color: #ffffff !important; /* White background for content within feedback section */
+        border: 1px dashed #ccc !important; /* Dashed border for feedback content */
+        padding: 10px !important;
+        border-radius: 5px !important;
+    }
+
+    /* Print styling for "Your Reflection" section - give it a frame */
+    /* Assuming #reflection is within a .section-block */
+    .section-block:not(#lecturerFeedbackSection) { /* Target reflection section specifically */
+        background-color: #f9f9f9 !important; /* Consistent light background */
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
+        box-shadow: none !important;
+        margin-bottom: 20px !important;
+    }
+    /* Ensure the editor content inside also gets styling */
+    .section-block:not(#lecturerFeedbackSection) .ql-editor {
+        background-color: #ffffff !important;
+        border: 1px dashed #ccc !important;
+        padding: 10px !important;
+        border-radius: 5px !important;
+    }
+
+
+    /* Print styling for "Attached Media" heading */
+    h2[data-original-text="Attach Relevant Media (Optional)"] { /* Updated text */
+        display: none; /* Hide the original H2 */
+    }
+    h2[data-original-text="Attach Relevant Media (Optional)"]::before { /* Updated text */
+        content: "Attached Media"; /* Insert new text content */
+        display: block !important; /* Make it a block element to act as a heading */
+        color: #2c3e50 !important; /* Now matches main title color */
+        font-size: 1.4em !important;
+        font-weight: 600 !important;
+        margin-top: 25px !important;
+        margin-bottom: 10px !important;
+        border-bottom: 1px solid #eee !important;
+        padding-bottom: 5px !important;
+    }
+    
+    /* Image/Video gallery in print */
+    #mediaPreviewContainer { /* Updated ID */
+        border: none !important;
+        padding: 0 !important;
+        min-height: auto !important;
+        background-color: transparent !important;
+        display: flex !important; /* Keep flex for layout */
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        justify-content: flex-start !important; /* Align media to start for print */
+    }
+    .media-preview-wrapper { /* Updated class */
+        border: 1px solid #eee !important;
+        margin-right: 10px !important;
+        display: inline-block !important;
+        box-shadow: none !important;
+        max-width: 150px !important;
+        max-height: 150px !important;
+        padding: 5px !important; /* Small padding */
+    }
+    .uploaded-media-preview { /* Updated class */
+        object-fit: scale-down !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+    .no-media-selected { /* Updated class */
+        display: none !important;
+    }
+}
