@@ -1161,3 +1161,37 @@ button.copy-btn:hover,
         display: none !important;
     }
 }
+/* --- FIX for Login Layout --- */
+/* Add this new code to the bottom of your style.css file */
+
+/* 1. Fix the Header Layout */
+.top-header {
+    display: flex; /* Arrange items in a row */
+    justify-content: space-between; /* Pushes outer items to the edges */
+    align-items: center; /* Vertically aligns everything in the middle */
+    width: 100%; /* Ensure header spans the full page width */
+    padding: 10px 20px; /* Add some spacing */
+    box-sizing: border-box; /* Ensures padding doesn't add to the width */
+}
+
+/* 2. Re-center the Main App Container */
+.container {
+    max-width: 800px; /* Or whatever your original max-width was */
+    margin: 20px auto; /* This is the key change: centers the container */
+}
+
+/* 3. Style the Netlify Identity button to match your theme */
+[data-netlify-identity-button] a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+[data-netlify-identity-button] a:hover {
+    text-decoration: underline;
+}
+
+/* Dark mode compatibility for the logout link */
+.dark-mode [data-netlify-identity-button] a {
+    color: #ecf0f1;
+}
