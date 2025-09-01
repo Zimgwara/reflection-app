@@ -164,10 +164,9 @@
     <!-- Original script dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <!-- IMPORTANT: 'defer' attribute removed to fix the initialization error -->
     <script src="script.js"></script>
 
-    <!-- This script handles login state and calls initializeApp() from script.js -->
+    <!-- Script to handle login state and call initializeApp() from script.js -->
     <script>
         let appInitialized = false;
 
@@ -178,7 +177,6 @@
             const updateUserState = (user) => {
                 if (user) {
                     appContent.style.display = 'block';
-                    // Position the login button inside the app wrapper for logged-in state
                     const appWrapper = document.querySelector('.app-wrapper');
                     appWrapper.insertBefore(loginButtonContainer, appContent);
 
@@ -203,6 +201,38 @@
         });
     </script>
 
+    <!-- NEW: Standalone Dark Mode Logic -->
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const themeKey = 'myTechnicalReflection_theme';
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+                if(themeToggle) themeToggle.checked = true;
+            } else {
+                body.classList.remove('dark-mode');
+                if(themeToggle) themeToggle.checked = false;
+            }
+        };
+
+        const savedTheme = localStorage.getItem(themeKey);
+        applyTheme(savedTheme);
+
+        if(themeToggle){
+            themeToggle.addEventListener('change', () => {
+                const isDarkMode = themeToggle.checked;
+                if (isDarkMode) {
+                    body.classList.add('dark-mode');
+                    localStorage.setItem(themeKey, 'dark');
+                } else {
+                    body.classList.remove('dark-mode');
+                    localStorage.setItem(themeKey, 'light');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
 

@@ -417,15 +417,13 @@ async function downloadAsHtml() {
 }
 
 
-// --- Local Storage Functions (Now mostly for text content and theme) ---
-// Kept for compatibility, but media moved to IndexedDB
+// --- Local Storage Functions (Now mostly for text content) ---
 const LOCAL_STORAGE_KEY_REFLECTION = 'myTechnicalReflection_reflection_quill';
 const LOCAL_STORAGE_KEY_FEEDBACK = 'myTechnicalReflection_feedback_quill';
 const LOCAL_STORAGE_KEY_TIMESTAMP = 'myTechnicalReflection_timestamp';
-const LOCAL_STORAGE_KEY_THEME = 'myTechnicalReflection_theme';
 
 async function saveContentToLocalStorage() {
-    // Save Quill HTML content to localStorage (for now, eventually IndexedDB for text too)
+    // Save Quill HTML content to localStorage
     const reflectionHtml = reflectionQuill.root.innerHTML;
     const feedbackHtml = feedbackQuill.root.innerHTML;
     
@@ -437,15 +435,12 @@ async function saveContentToLocalStorage() {
     const timestampString = now.toLocaleString();
     localStorage.setItem(LOCAL_STORAGE_KEY_TIMESTAMP, timestampString);
     updateTimestampDisplay(timestampString);
-
-    // Media are saved instantly when uploaded/removed via handleMediaUpload/deleteMediaFromDB
 }
 
 async function loadContentFromLocalStorage() {
     const reflectionHtml = localStorage.getItem(LOCAL_STORAGE_KEY_REFLECTION);
     const feedbackHtml = localStorage.getItem(LOCAL_STORAGE_KEY_FEEDBACK);
     const timestamp = localStorage.getItem(LOCAL_STORAGE_KEY_TIMESTAMP);
-    const savedTheme = localStorage.getItem(LOCAL_STORAGE_KEY_THEME);
 
     // Set Quill content (only if Quill instances exist)
     if (reflectionQuill && reflectionHtml) {
@@ -457,7 +452,6 @@ async function loadContentFromLocalStorage() {
 
     const mediaPreviewContainer = document.getElementById('mediaPreviewContainer');
     // Clear existing media previews before loading new ones
-    // First, revoke all existing object URLs to prevent memory leaks
     mediaPreviewContainer.querySelectorAll('.uploaded-media-preview').forEach(mediaEl => {
         if (mediaEl.dataset.objectUrl) {
             URL.revokeObjectURL(mediaEl.dataset.objectUrl);
@@ -498,17 +492,6 @@ async function loadContentFromLocalStorage() {
         updateTimestampDisplay(timestamp);
     } else {
         updateTimestampDisplay("Never");
-    }
-
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.checked = true;
-        } else {
-            document.body.classList.remove('dark-mode');
-            themeToggle.checked = false;
-        }
     }
 }
 
@@ -581,14 +564,6 @@ function insertPrompt() {
     }
 }
 
-// --- Theme Toggling Function ---
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    localStorage.setItem(LOCAL_STORAGE_KEY_THEME, isDarkMode ? 'dark' : 'light');
-}
-
-
 // --- Microphone Dictation Functionality (Adapted for Quill) ---
 let recognition = null;
 let isListening = false;
@@ -623,11 +598,6 @@ function setupSpeechRecognition() {
                 const currentSelection = activeQuillEditor.getSelection();
                 const insertIndex = currentSelection ? currentSelection.index : activeQuillEditor.getLength();
                 
-                // This logic is simplified for Quill. For robust interim results with rich text,
-                // you'd typically manage deltas for efficiency.
-                // For now, we append text and then update/replace if it's a final segment.
-                
-                // Check if current text ends with previous interim part
                 const currentQuillText = activeQuillEditor.getText();
                 if (currentQuillText.endsWith(interimTranscript + '\n')) { // Quill adds a trailing newline
                     activeQuillEditor.deleteText(currentQuillText.length - (interimTranscript.length + 1), interimTranscript.length + 1, 'silent');
@@ -715,7 +685,6 @@ async function handleMediaUpload(event, mediaType) {
             createVideoPreviewElement(objectUrl, mediaId); // Pass objectUrl and ID
         }
     }
-    // No need to call saveContentToLocalStorage here as media are saved immediately
 }
 
 
@@ -951,24 +920,24 @@ async function clearAppData() {
 }
 
 
-// --- DOMContentLoaded: All event listeners and initial setup ---
+// --- initializeApp: All event listeners and initial setup ---
 async function initializeApp() {
     // Initialize IndexedDB
     await openDatabase(); // Ensure DB is open before trying to load/save content
 
     // Initialize Quill Editors
     const toolbarOptions = [
-        ['bold', 'italic', 'underline', 'strike'],     // toggled buttons
+        ['bold', 'italic', 'underline', 'strike'],      // toggled buttons
         ['blockquote'],
 
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
 
-        [{ 'color': [] }, { 'background': [] }],       // dropdown with defaults from theme
+        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
         [{ 'font': [] }],
         [{ 'align': [] }],
 
-        ['clean']                                      // remove formatting button
+        ['clean']                                         // remove formatting button
     ];
 
     reflectionQuill = new Quill('#reflection', {
@@ -987,8 +956,8 @@ async function initializeApp() {
         placeholder: 'Type or ask the lecturer to dictate their feedback here...'
     });
 
-    // Load previously saved content and theme preference on page load
-    await loadContentFromLocalStorage(); // This will populate Quill editors and media if content exists
+    // Load previously saved content
+    await loadContentFromLocalStorage();
 
     // --- Add event listeners for saving content on Quill text-change ---
     reflectionQuill.on('text-change', () => {
@@ -1000,7 +969,7 @@ async function initializeApp() {
         updateWordCharCount(feedbackQuill, 'feedbackWordCount', 'feedbackCharCount');
     });
 
-    // Initial update of counts on load (after potential content load from local storage)
+    // Initial update of counts on load
     updateWordCharCount(reflectionQuill, 'reflectionWordCount', 'reflectionCharCount');
     updateWordCharCount(feedbackQuill, 'feedbackWordCount', 'feedbackCharCount');
 
@@ -1060,12 +1029,6 @@ async function initializeApp() {
     // --- Prompt Insertion Event Listener ---
     document.getElementById('insertPromptBtn').addEventListener('click', insertPrompt);
 
-    // --- Theme Toggle Event Listener ---
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('change', toggleTheme);
-    }
-
     // --- Clear All Data Button Event Listener ---
     const clearAllDataBtn = document.getElementById('clearAllDataBtn');
     if (clearAllDataBtn) {
@@ -1094,4 +1057,4 @@ async function initializeApp() {
                 });
         });
     }
-});
+}
