@@ -87,7 +87,6 @@
     <script src="script.js"></script>
     
     <script type="module">
-        // This is a single, robust script block to handle initialization and authentication.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -95,18 +94,14 @@
         let appInitialized = false;
 
         try {
-            // --- Standalone Dark Mode Handler ---
-            // This runs as soon as the DOM is ready to prevent flashing
             document.addEventListener('DOMContentLoaded', () => {
                 const themeToggle = document.getElementById('themeToggle');
                 if (themeToggle) {
                     const savedTheme = localStorage.getItem('myTechnicalReflection_theme') || 'light';
-                    
                     if (savedTheme === 'dark') {
                         document.body.classList.add('dark-mode');
                         themeToggle.checked = true;
                     }
-
                     themeToggle.addEventListener('change', () => {
                         document.body.classList.toggle('dark-mode');
                         const isDarkMode = document.body.classList.contains('dark-mode');
@@ -115,7 +110,7 @@
                 }
             });
 
-            // --- IMPORTANT: Paste your real Firebase config here ---
+            /* --- PASTE YOUR FIREBASE CONFIG OBJECT FROM THE FIREBASE CONSOLE HERE --- */
             // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBif3Ejzt-KiY1vDyFPtRQjX5ne-SnV4dM",
@@ -126,7 +121,8 @@ const firebaseConfig = {
   appId: "1:510796139347:web:426f0414b5f20f350f2fa6",
   measurementId: "G-WSTTV8EFWX"
 };
-            };
+            
+            */
 
             console.log("Attempting to initialize Firebase...");
             const app = initializeApp(firebaseConfig);
@@ -134,58 +130,41 @@ const firebaseConfig = {
             const db = getFirestore(app);
             console.log("Firebase initialized successfully!");
 
-            // Make services globally available for the main script
             window.firebaseServices = { auth, db };
 
-            // --- Netlify Identity to Firebase Authentication Bridge ---
             async function authenticateWithFirebase() {
-                console.log("Step 1: Authenticating with Firebase...");
                 const netlifyUser = netlifyIdentity.currentUser();
-                
-                if (!netlifyUser || !netlifyUser.token) {
-                    console.error("Netlify user or token not found.");
-                    return;
-                }
+                if (!netlifyUser) return;
 
                 try {
-                    console.log("Step 2: Calling Netlify function...");
                     const response = await fetch('/.netlify/functions/get-firebase-token', {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${netlifyUser.token.access_token}` }
                     });
-
-                    if (!response.ok) throw new Error(`Function returned an error: ${response.statusText}`);
-                    
+                    if (!response.ok) throw new Error(`Function returned status: ${response.status}`);
                     const data = await response.json();
-                    console.log("Step 3: Received Firebase token. Signing in...");
                     await signInWithCustomToken(auth, data.token);
-                    console.log("Step 4: Successfully signed in to Firebase!");
-
                 } catch (error) {
-                    console.error("CRITICAL FAILURE during Firebase authentication:", error);
+                    console.error("Firebase auth bridge failed:", error);
                 }
             }
 
             onAuthStateChanged(auth, (firebaseUser) => {
-                console.log("Firebase auth state changed. User:", firebaseUser);
                 if (firebaseUser) {
                     document.getElementById('app-content').style.display = 'block';
                     if (!appInitialized) {
-                        console.log("Step 5: Initializing the main application...");
-                        initializeMainApp(firebaseUser.uid); // Pass UID to main script
+                        initializeMainApp(firebaseUser.uid);
                         appInitialized = true;
                     }
                 }
             });
 
             netlifyIdentity.on('login', () => {
-                console.log("Netlify login event detected.");
                 netlifyIdentity.close();
                 authenticateWithFirebase();
             });
 
             netlifyIdentity.on('logout', async () => {
-                console.log("Netlify logout event detected.");
                 if (auth) await signOut(auth);
                 document.getElementById('app-content').style.display = 'none';
                 appInitialized = false;
@@ -193,25 +172,14 @@ const firebaseConfig = {
             });
 
             netlifyIdentity.on('init', (user) => {
-                console.log("Netlify Identity widget initialized.");
                 if (user) {
-                    console.log("Existing Netlify user session found.");
                     authenticateWithFirebase();
                 }
             });
 
         } catch (error) {
-            // --- THIS IS THE CRITICAL ERROR HANDLER ---
-            console.error("!!!!!!!!!! A FATAL ERROR OCCURRED DURING FIREBASE INITIALIZATION !!!!!!!!!!");
-            console.error("This is likely due to a typo in your 'firebaseConfig' object above.");
-            console.error("Please check every key and value carefully against your Firebase project settings.");
-            console.error("The specific error was:", error);
-            // Display a helpful message to the user on the page itself
-            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;">
-                <h1>Application Error</h1>
-                <p>Could not connect to the database. This is usually caused by a configuration error.</p>
-                <p>Please check the browser's developer console (F12 or right-click -> Inspect -> Console) for a specific error message.</p>
-            </div>`;
+            console.error("A FATAL ERROR OCCURRED DURING FIREBASE INITIALIZATION.", error);
+            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize the database. Please check the browser console for a specific error message.</p></div>`;
         }
     </script>
 </body>
