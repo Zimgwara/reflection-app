@@ -6,6 +6,7 @@
     <title>My Technical Reflection App</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <!-- Note: To fix the 404 error for the icon, ensure the 'icons' folder is in your GitHub repository. -->
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#2c3e50">
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
@@ -94,9 +95,28 @@
         let appInitialized = false;
 
         try {
+            // --- Standalone Dark Mode Handler ---
+            // This runs as soon as the DOM is ready to prevent flashing
+            document.addEventListener('DOMContentLoaded', () => {
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    const savedTheme = localStorage.getItem('myTechnicalReflection_theme') || 'light';
+                    
+                    if (savedTheme === 'dark') {
+                        document.body.classList.add('dark-mode');
+                        themeToggle.checked = true;
+                    }
+
+                    themeToggle.addEventListener('change', () => {
+                        document.body.classList.toggle('dark-mode');
+                        const isDarkMode = document.body.classList.contains('dark-mode');
+                        localStorage.setItem('myTechnicalReflection_theme', isDarkMode ? 'dark' : 'light');
+                    });
+                }
+            });
+
             // --- IMPORTANT: Paste your real Firebase config here ---
-            const firebaseConfig = {
-              // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBif3Ejzt-KiY1vDyFPtRQjX5ne-SnV4dM",
   authDomain: "reflectdent-74d8c.firebaseapp.com",
@@ -193,23 +213,6 @@ const firebaseConfig = {
                 <p>Please check the browser's developer console (F12 or right-click -> Inspect -> Console) for a specific error message.</p>
             </div>`;
         }
-
-        // --- Standalone Dark Mode Handler ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const themeToggle = document.getElementById('themeToggle');
-            const savedTheme = localStorage.getItem('myTechnicalReflection_theme') || 'light';
-            
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggle.checked = true;
-            }
-
-            themeToggle.addEventListener('change', () => {
-                document.body.classList.toggle('dark-mode');
-                const isDarkMode = document.body.classList.contains('dark-mode');
-                localStorage.setItem('myTechnicalReflection_theme', isDarkMode ? 'dark' : 'light');
-            });
-        });
     </script>
 </body>
 </html>
