@@ -6,7 +6,6 @@
     <title>My Technical Reflection App</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <!-- Note: To fix the 404 error for the icon, ensure the 'icons' folder is in your GitHub repository. -->
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#2c3e50">
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
@@ -41,7 +40,6 @@
                     <h1>My Technical Reflection</h1>
                     <input type="text" id="reflectionTitle" placeholder="Enter a title for this reflection...">
                     <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
-
                     <div class="section-block">
                         <h2>Your Reflection:</h2>
                         <div id="reflection" class="quill-editor"></div>
@@ -58,7 +56,6 @@
                         <h2>Lecturer Feedback</h2>
                         <div id="feedback" class="quill-editor"></div>
                     </div>
-
                     <div class="action-button-group">
                         <button id="saveReflectionBtn">Save and Close</button>
                         <button id="deleteReflectionBtn" class="delete-btn">Delete Reflection</button>
@@ -71,7 +68,7 @@
     
     <div id="confirmationModal" class="modal-overlay">
         <div class="modal-content">
-            <p id="modalMessage">Are you sure you want to delete this reflection? This action cannot be undone.</p>
+            <p id="modalMessage">Are you sure you want to delete this reflection?</p>
             <div class="modal-buttons">
                 <button id="confirmYes" class="modal-btn confirm-yes-btn">Yes, Delete</button>
                 <button id="confirmNo" class="modal-btn confirm-no-btn">Cancel</button>
@@ -83,7 +80,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    
     <script src="script.js"></script>
     
     <script type="module">
@@ -110,7 +106,9 @@
                 }
             });
 
-            /* --- PASTE YOUR FIREBASE CONFIG OBJECT FROM THE FIREBASE CONSOLE HERE --- */
+            // --- PASTE YOUR ENTIRE FIREBASE CONFIG OBJECT FROM THE FIREBASE CONSOLE HERE ---
+            // It should start with 'const firebaseConfig = {' and end with '};'
+            // It is perfectly fine if it includes a "measurementId".
             // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBif3Ejzt-KiY1vDyFPtRQjX5ne-SnV4dM",
@@ -122,8 +120,6 @@ const firebaseConfig = {
   measurementId: "G-WSTTV8EFWX"
 };
             
-            */
-
             console.log("Attempting to initialize Firebase...");
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
@@ -135,7 +131,6 @@ const firebaseConfig = {
             async function authenticateWithFirebase() {
                 const netlifyUser = netlifyIdentity.currentUser();
                 if (!netlifyUser) return;
-
                 try {
                     const response = await fetch('/.netlify/functions/get-firebase-token', {
                         method: 'POST',
@@ -159,23 +154,12 @@ const firebaseConfig = {
                 }
             });
 
-            netlifyIdentity.on('login', () => {
-                netlifyIdentity.close();
-                authenticateWithFirebase();
-            });
-
+            netlifyIdentity.on('login', () => { netlifyIdentity.close(); authenticateWithFirebase(); });
             netlifyIdentity.on('logout', async () => {
                 if (auth) await signOut(auth);
-                document.getElementById('app-content').style.display = 'none';
-                appInitialized = false;
                 window.location.reload();
             });
-
-            netlifyIdentity.on('init', (user) => {
-                if (user) {
-                    authenticateWithFirebase();
-                }
-            });
+            netlifyIdentity.on('init', (user) => { if (user) authenticateWithFirebase(); });
 
         } catch (error) {
             console.error("A FATAL ERROR OCCURRED DURING FIREBASE INITIALIZATION.", error);
