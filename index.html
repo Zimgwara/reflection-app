@@ -6,62 +6,62 @@
     <title>My Technical Reflection App</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <!-- Reminder: To fix the 404 error, an 'icons' folder containing 'icon-192x192.png' must be in your project. -->
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#2c3e50">
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-    <div class="app-wrapper">
-        <div id="app-content" style="display: none;">
-            <main class="container">
-                <div class="top-header">
-                    <div class="logo-container">
-                        <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
-                    </div>
-                    <div data-netlify-identity-button></div>
-                    <div class="theme-switch-wrapper top-right-corner">
-                        <label class="theme-switch" for="themeToggle">
-                            <input type="checkbox" id="themeToggle" role="switch">
-                            <div class="slider round"></div>
-                        </label>
-                        <span class="theme-label">Dark Mode</span>
-                    </div>
-                </div>
-                <div id="reflectionsListContainer">
-                    <h1>My Reflections</h1>
-                    <button id="newReflectionBtn">New Reflection</button>
-                    <ul id="reflectionsList"></ul>
-                </div>
-                <div id="reflectionEditorContainer" class="hidden">
-                    <h1>My Technical Reflection</h1>
-                    <input type="text" id="reflectionTitle" placeholder="Enter a title for this reflection...">
-                    <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
-                    <div class="section-block">
-                        <h2>Your Reflection:</h2>
-                        <div id="reflection" class="quill-editor"></div>
-                    </div>
-                    <div class="section-block">
-                        <h2>Attach Relevant Media</h2>
-                        <div class="image-upload-section">
-                            <label class="custom-file-upload" for="mediaUpload">Upload Image/Video</label>
-                            <input type="file" id="mediaUpload" accept="image/*,video/*" multiple>
-                            <div id="mediaPreviewContainer"></div>
-                        </div>
-                    </div>
-                    <div class="section-block" id="lecturerFeedbackSection">
-                        <h2>Lecturer Feedback</h2>
-                        <div id="feedback" class="quill-editor"></div>
-                    </div>
-                    <div class="action-button-group">
-                        <button id="saveReflectionBtn">Save and Close</button>
-                        <button id="deleteReflectionBtn" class="delete-btn">Delete Reflection</button>
-                        <button class="print-btn">Print / Save as PDF</button>
-                    </div>
-                </div>
-            </main>
+    <!-- The header is now OUTSIDE the hidden content, so it's always visible -->
+    <div class="top-header">
+        <div class="logo-container">
+            <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
         </div>
+        <div data-netlify-identity-button></div>
+        <div class="theme-switch-wrapper top-right-corner">
+            <label class="theme-switch" for="themeToggle">
+                <input type="checkbox" id="themeToggle" role="switch">
+                <div class="slider round"></div>
+            </label>
+            <span class="theme-label">Dark Mode</span>
+        </div>
+    </div>
+
+    <!-- This div contains the main app content that will be shown on login -->
+    <div id="app-content" style="display: none;">
+        <main class="container">
+            <div id="reflectionsListContainer">
+                <h1>My Reflections</h1>
+                <button id="newReflectionBtn">New Reflection</button>
+                <ul id="reflectionsList"></ul>
+            </div>
+            <div id="reflectionEditorContainer" class="hidden">
+                <h1>My Technical Reflection</h1>
+                <input type="text" id="reflectionTitle" placeholder="Enter a title for this reflection...">
+                <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
+                <div class="section-block">
+                    <h2>Your Reflection:</h2>
+                    <div id="reflection" class="quill-editor"></div>
+                </div>
+                <div class="section-block">
+                    <h2>Attach Relevant Media</h2>
+                    <div class="image-upload-section">
+                        <label class="custom-file-upload" for="mediaUpload">Upload Image/Video</label>
+                        <input type="file" id="mediaUpload" accept="image/*,video/*" multiple>
+                        <div id="mediaPreviewContainer"></div>
+                    </div>
+                </div>
+                <div class="section-block" id="lecturerFeedbackSection">
+                    <h2>Lecturer Feedback</h2>
+                    <div id="feedback" class="quill-editor"></div>
+                </div>
+                <div class="action-button-group">
+                    <button id="saveReflectionBtn">Save and Close</button>
+                    <button id="deleteReflectionBtn" class="delete-btn">Delete Reflection</button>
+                    <button class="print-btn">Print / Save as PDF</button>
+                </div>
+            </div>
+        </main>
     </div>
     
     <div id="confirmationModal" class="modal-overlay">
@@ -80,7 +80,6 @@
     
     <script type="module">
         // --- STEP 1: Firebase Configuration ---
-        // PASTE YOUR ENTIRE FIREBASE CONFIG OBJECT FROM THE FIREBASE CONSOLE HERE.
         const firebaseConfig = {
             apiKey: "PASTE_YOUR_API_KEY",
             authDomain: "PASTE_YOUR_AUTH_DOMAIN",
@@ -93,7 +92,7 @@
         // --- STEP 2: Import Firebase Modules ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, getDocs, updateDoc, deleteDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
         try {
             // --- STEP 3: Initialize Firebase ---
@@ -101,20 +100,14 @@
             const auth = getAuth(app);
             const db = getFirestore(app);
 
-            // --- STEP 4: Application Logic (exactly as before) ---
-            let reflectionQuill, feedbackQuill;
-            let currentUserId = null;
-            let currentReflectionId = null;
+            // --- STEP 4: Application Logic ---
+            let reflectionQuill, feedbackQuill, currentUserId = null, currentReflectionId = null;
             const reflectionsCache = new Map();
             let appIsInitialized = false;
 
-            const reflectionsListContainer = document.getElementById('reflectionsListContainer');
-            const reflectionEditorContainer = document.getElementById('reflectionEditorContainer');
-            
             function initializeMainApp(userId) {
-                if (appIsInitialized) return; // Prevent re-initialization
+                if (appIsInitialized) return;
                 appIsInitialized = true;
-
                 currentUserId = userId;
                 const toolbarOptions = [['bold', 'italic', 'underline'],[{ 'list': 'ordered' }, { 'list': 'bullet' }],['clean']];
                 reflectionQuill = new Quill('#reflection', { theme: 'snow', modules: { toolbar: toolbarOptions } });
@@ -123,12 +116,12 @@
                 document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
                 document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
                 document.getElementById('mediaUpload').addEventListener('change', handleMediaUpload);
-                document.querySelector('.print-btn').addEventListener('click', printPage);
+                document.querySelector('.print-btn').addEventListener('click', () => window.print());
                 listenForReflections();
             }
 
-            function showListView() { reflectionsListContainer.classList.remove('hidden'); reflectionEditorContainer.classList.add('hidden'); currentReflectionId = null; }
-            function showEditorView() { reflectionsListContainer.classList.add('hidden'); reflectionEditorContainer.classList.remove('hidden'); }
+            function showListView() { document.getElementById('reflectionsListContainer').classList.remove('hidden'); document.getElementById('reflectionEditorContainer').classList.add('hidden'); currentReflectionId = null; }
+            function showEditorView() { document.getElementById('reflectionsListContainer').classList.add('hidden'); document.getElementById('reflectionEditorContainer').classList.remove('hidden'); }
             function showEditorForNewReflection() { currentReflectionId = null; document.getElementById('reflectionTitle').value = ''; reflectionQuill.setText(''); feedbackQuill.setText(''); document.getElementById('mediaPreviewContainer').innerHTML = ''; document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never'; showEditorView(); }
             function listenForReflections() { if (!currentUserId) return; const q = query(collection(db, 'users', currentUserId, 'reflections'), orderBy('updatedAt', 'desc')); onSnapshot(q, (snapshot) => { const list = document.getElementById('reflectionsList'); list.innerHTML = ''; snapshot.docs.forEach(doc => { const reflection = { id: doc.id, ...doc.data() }; reflectionsCache.set(reflection.id, reflection); const li = document.createElement('li'); li.textContent = reflection.title || 'Untitled'; li.dataset.id = reflection.id; li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id)); list.appendChild(li); }); }); }
             function loadReflectionIntoEditor(id) { const reflection = reflectionsCache.get(id); if (!reflection) return; currentReflectionId = id; document.getElementById('reflectionTitle').value = reflection.title || ''; reflectionQuill.root.innerHTML = reflection.reflectionContent || ''; feedbackQuill.root.innerHTML = reflection.feedbackContent || ''; document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${reflection.updatedAt?.toDate().toLocaleString() || 'Never'}`; const mediaContainer = document.getElementById('mediaPreviewContainer'); mediaContainer.innerHTML = ''; (reflection.mediaUrls || []).forEach(url => { const img = document.createElement('img'); img.src = url; mediaContainer.appendChild(img); }); showEditorView(); }
@@ -137,63 +130,36 @@
             async function handleMediaUpload(event) { const files = event.target.files; const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`; const mediaContainer = document.getElementById('mediaPreviewContainer'); for (const file of files) { const formData = new FormData(); formData.append('file', file); formData.append('upload_preset', 'Dental'); try { const res = await fetch(url, { method: 'POST', body: formData }); if (!res.ok) throw new Error('Upload failed.'); const data = await res.json(); const img = document.createElement('img'); img.src = data.secure_url; mediaContainer.appendChild(img); } catch (e) { console.error('Upload error:', e); showAppMessage('Error uploading.'); } } }
             function showConfirmationModal(id) { if (!id) return; const modal = document.getElementById('confirmationModal'); modal.classList.add('active'); document.getElementById('confirmYes').onclick = () => { deleteReflection(id); modal.classList.remove('active'); }; document.getElementById('confirmNo').onclick = () => modal.classList.remove('active'); }
             function showAppMessage(text) { const el = document.getElementById('message'); el.textContent = text; el.classList.add('show-message'); setTimeout(() => el.classList.remove('show-message'), 3000); }
-            function printPage() { window.print(); }
-
-            // --- STEP 5: ROBUST Netlify & Firebase Authentication Bridge ---
-            async function authenticateWithFirebase() {
-                const netlifyUser = netlifyIdentity.currentUser();
-                // THIS IS THE CRITICAL FIX: Ensure user and token exist before proceeding.
-                if (!netlifyUser || !netlifyUser.token || !netlifyUser.token.access_token) {
-                    console.log("Netlify user or access token not ready yet. Waiting...");
-                    return; // Abort if the token isn't ready.
-                }
-                
+            
+            // --- STEP 5: Authentication Bridge ---
+            async function authenticateWithFirebase(user) {
+                if (!user || !user.token || !user.token.access_token) return;
                 try {
-                    const response = await fetch('/.netlify/functions/get-firebase-token', {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${netlifyUser.token.access_token}` }
-                    });
-                    if (!response.ok) throw new Error(`Function returned status: ${response.status}`);
+                    const response = await fetch('/.netlify/functions/get-firebase-token', { method: 'POST', headers: { 'Authorization': `Bearer ${user.token.access_token}` } });
+                    if (!response.ok) throw new Error(`Function status: ${response.status}`);
                     const data = await response.json();
                     await signInWithCustomToken(auth, data.token);
-                } catch (error) {
-                    console.error("Firebase authentication bridge failed:", error);
-                }
+                } catch (error) { console.error("Auth bridge failed:", error); }
             }
 
-            // Listen for changes in Firebase auth state
             onAuthStateChanged(auth, (firebaseUser) => {
-                const appContent = document.getElementById('app-content');
-                if (firebaseUser) {
-                    appContent.style.display = 'block';
-                    initializeMainApp(firebaseUser.uid);
-                } else {
-                    appContent.style.display = 'none';
-                }
+                document.getElementById('app-content').style.display = firebaseUser ? 'block' : 'none';
+                if (firebaseUser) initializeMainApp(firebaseUser.uid);
             });
             
-            // Trigger authentication when Netlify events happen
-            netlifyIdentity.on('login', (user) => { 
-                netlifyIdentity.close(); 
-                authenticateWithFirebase();
-            });
-            netlifyIdentity.on('logout', async () => {
-                if (auth.currentUser) await signOut(auth);
-                window.location.reload();
-            });
-            netlifyIdentity.on('init', (user) => {
-                if (user) {
-                    authenticateWithFirebase();
-                }
-            });
+            netlifyIdentity.on('login', (user) => { netlifyIdentity.close(); authenticateWithFirebase(user); });
+            netlifyIdentity.on('logout', async () => { if (auth.currentUser) await signOut(auth); window.location.reload(); });
+            netlifyIdentity.on('init', (user) => { if (user) authenticateWithFirebase(user); });
             
-            // --- Dark Mode Theme Logic ---
+            // --- Dark Mode ---
             const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) { const theme = localStorage.getItem('myTechnicalReflection_theme'); if (theme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.checked = true; } themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('myTechnicalReflection_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }); }
+            const savedTheme = localStorage.getItem('myTechnicalReflection_theme');
+            if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.checked = true; }
+            themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('myTechnicalReflection_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); });
 
         } catch (error) {
             console.error("A FATAL ERROR OCCURRED:", error);
-            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize. Please check the browser console for details.</p></div>`;
+            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize. Check the console.</p></div>`;
         }
     </script>
 </body>
