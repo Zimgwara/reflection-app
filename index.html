@@ -10,6 +10,15 @@
     <link href="https://cdn.quilljs.com/2.0.0-rc.4/quill.snow.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HJ0F5QXH1W"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-HJ0F5QXH1W');
+    </script>
     <style>
         /* This style block ensures the theme-toggle button is rendered correctly for your use case. */
         .theme-toggle {
@@ -229,15 +238,8 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for Firebase configuration
-        const appId = 'default-app-id'; // Use a consistent default ID for this environment
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID",
-        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
         // Quill is globally available via the script tag
         const Quill = window.Quill;
@@ -666,8 +668,12 @@
 
         // Event listeners and initial auth logic moved into this block
         if (auth) {
-            // This is the new, simplified sign-in for new users.
-            signInAnonymously(auth);
+            // Use the token if it exists, otherwise sign in anonymously
+            if (typeof __initial_auth_token !== 'undefined') {
+              signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+              signInAnonymously(auth);
+            }
 
             // Auth state listener
             onAuthStateChanged(auth, (user) => {
