@@ -22,6 +22,7 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -431,6 +432,20 @@
             background: #4a5568;
             color: #e2e8f0;
         }
+        
+        .logo-svg {
+            width: 128px;
+            height: 128px;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: #718096;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body class="light-mode">
@@ -439,8 +454,15 @@
     </button>
     <main>
         <div id="authContainer" class="card">
-            <img src="https://placehold.co/128x128/3498db/ffffff?text=Reflect-Dent+Logo" alt="Company Logo" class="logo">
-            <h1>Welcome to ReflectDent</h1>
+            <!-- Replaced the external image with a self-contained SVG for reliability -->
+            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" rx="20" ry="20" fill="#3498db"/>
+                <path d="M50 20 L60 35 L40 35 Z" fill="#ffffff"/>
+                <path d="M50 20 C70 30 75 60 50 80 C25 60 30 30 50 20 Z" fill="#ffffff"/>
+                <circle cx="42" cy="55" r="5" fill="#3498db"/>
+                <circle cx="58" cy="55" r="5" fill="#3498db"/>
+            </svg>
+            <h1>Welcome to Reflect-Dent</h1>
             <p>Sign in with your university email to get started.</p>
             <form id="authForm">
                 <input type="email" id="emailInput" placeholder="st.....@outlook.cardiffmet.ac.uk" required>
@@ -539,6 +561,11 @@
             </div>
         </div>
     </main>
+
+    <!-- Added the footer element here -->
+    <footer class="footer">
+        <p>Reflect-Dent App | Copyright © 2024</p>
+    </footer>
 
     <!-- Custom Modal for Alerts/Confirms -->
     <div id="customModal" class="modal-overlay hidden">
@@ -649,12 +676,16 @@
         const showError = (message) => {
             console.error(message);
             authMessage.textContent = message;
-            authMessage.style.color = '#e74c3c';
+            // Updated to add the error class for proper styling
+            authMessage.classList.remove('success');
+            authMessage.classList.add('error');
         };
         
         const showSuccess = (message) => {
             authMessage.textContent = message;
-            authMessage.style.color = '#2ecc71';
+            // Updated to add the success class for proper styling
+            authMessage.classList.remove('error');
+            authMessage.classList.add('success');
         };
 
         const formatDate = (timestamp) => {
