@@ -156,13 +156,14 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, updateDoc, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for Firebase configuration
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Quill is globally available via the script tag
         const Quill = window.Quill;
@@ -235,7 +236,7 @@
         };
 
         const setLoggedInUser = (user) => {
-            const userName = user.email.split('@')[0];
+            const userName = user.email ? user.email.split('@')[0] : 'Guest';
             document.getElementById('userName').textContent = `Welcome, ${userName}!`;
             userIdDisplay.textContent = user.uid;
             document.querySelector('.user-id-display').classList.remove('hidden');
@@ -275,7 +276,8 @@
             const title = reflectionTitle.value.trim();
 
             if (title === '') {
-                alert('Please enter a title for your reflection.');
+                // IMPORTANT: Do not use alert().
+                showError('Please enter a title for your reflection.');
                 return;
             }
 
@@ -545,56 +547,19 @@
             }
         });
 
-        // Event listeners for auth buttons
-        document.getElementById('authForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            authMessage.textContent = 'Signing in...';
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showSuccess('Signed in successfully!');
-            } catch (error) {
-                showError('Sign-in failed: ' + error.message);
-            }
-        });
-
-        document.getElementById('signUpBtn').addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            authMessage.textContent = 'Creating account...';
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                showSuccess('Account created successfully!');
-            } catch (error) {
-                showError('Sign-up failed: ' + error.message);
-            }
-        });
-
-        document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            showView('resetView');
-        });
-
-        document.getElementById('sendResetLinkBtn').addEventListener('click', async () => {
-            const email = resetEmailInput.value;
-            if (email) {
-                authMessage.textContent = 'Sending reset link...';
-                try {
-                    await sendPasswordResetEmail(auth, email);
-                    showSuccess('Password reset email sent. Please check your inbox.');
-                } catch (error) {
-                    showError('Failed to send reset email: ' + error.message);
-                }
-            }
-        });
-
-        document.getElementById('backToSignInBtn').addEventListener('click', () => {
-            showView('authView');
-        });
-        
-        // Auth state listener
+        // Event listeners and initial auth logic moved into this block
         if (auth) {
+            // Initial sign-in with custom token or anonymously
+            if (initialAuthToken) {
+                signInWithCustomToken(auth, initialAuthToken).catch((error) => {
+                    console.error("Custom token sign-in failed:", error);
+                    signInAnonymously(auth);
+                });
+            } else {
+                signInAnonymously(auth);
+            }
+
+            // Auth state listener
             onAuthStateChanged(auth, (user) => {
                 isAuthReady = true;
                 if (user) {
@@ -604,6 +569,54 @@
                     showView('authView');
                     document.querySelector('.user-id-display').classList.add('hidden');
                 }
+            });
+
+            // Event listeners for auth buttons
+            document.getElementById('authForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                authMessage.textContent = 'Signing in...';
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showSuccess('Signed in successfully!');
+                } catch (error) {
+                    showError('Sign-in failed: ' + error.message);
+                }
+            });
+
+            document.getElementById('signUpBtn').addEventListener('click', async () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                authMessage.textContent = 'Creating account...';
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showSuccess('Account created successfully!');
+                } catch (error) {
+                    showError('Sign-up failed: ' + error.message);
+                }
+            });
+
+            document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                showView('resetView');
+            });
+
+            document.getElementById('sendResetLinkBtn').addEventListener('click', async () => {
+                const email = resetEmailInput.value;
+                if (email) {
+                    authMessage.textContent = 'Sending reset link...';
+                    try {
+                        await sendPasswordResetEmail(auth, email);
+                        showSuccess('Password reset email sent. Please check your inbox.');
+                    } catch (error) {
+                        showError('Failed to send reset email: ' + error.message);
+                    }
+                }
+            });
+
+            document.getElementById('backToSignInBtn').addEventListener('click', () => {
+                showView('authView');
             });
         }
     </script>
