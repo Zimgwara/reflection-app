@@ -12,7 +12,6 @@
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-    <!-- The header is now OUTSIDE the hidden content, so it's always visible -->
     <div class="top-header">
         <div class="logo-container">
             <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- This div contains the main app content that will be shown on login -->
     <div id="app-content" style="display: none;">
         <main class="container">
             <div id="reflectionsListContainer">
@@ -41,6 +39,17 @@
                 <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
                 <div class="section-block">
                     <h2>Your Reflection:</h2>
+                    <div class="prompt-selection">
+                        <label for="promptSelect">Choose a prompt:</label>
+                        <select id="promptSelect">
+                            <option value="">-- Select a prompt --</option>
+                            <option value="well">What went well?</option>
+                            <option value="challenging">What was challenging?</option>
+                            <option value="future">What will you work on or change in the future?</option>
+                            <option value="star">STAR Reflection (Situation, Task, Action, Result)</option>
+                        </select>
+                        <button id="insertPromptBtn">Insert Prompt</button>
+                    </div>
                     <div id="reflection" class="quill-editor"></div>
                 </div>
                 <div class="section-block">
@@ -63,7 +72,7 @@
             </div>
         </main>
     </div>
-    
+
     <div id="confirmationModal" class="modal-overlay">
         <div class="modal-content">
             <p id="modalMessage">Are you sure you want to delete this reflection?</p>
@@ -73,23 +82,22 @@
             </div>
         </div>
     </div>
-    
+
     <p id="message" aria-live="polite"></p>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
-    
+
     <script type="module">
         // --- STEP 1: Firebase Configuration ---
-        const firebaseConfig = {
-    apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
-    authDomain: "reflect-dent-app.firebaseapp.com",
-    projectId: "reflect-dent-app",
-    storageBucket: "reflect-dent-app.firebasestorage.app",
-    messagingSenderId: "204434901803",
-    appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
-    measurementId: "G-HJ0F5QXH1W"
-        };
-        
+        apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
+  authDomain: "reflect-dent-app.firebaseapp.com",
+  projectId: "reflect-dent-app",
+  storageBucket: "reflect-dent-app.firebasestorage.app",
+  messagingSenderId: "204434901803",
+  appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
+  measurementId: "G-HJ0F5QXH1W"
+};
+
         // --- STEP 2: Import Firebase Modules ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -106,13 +114,36 @@
             const reflectionsCache = new Map();
             let appIsInitialized = false;
 
+            // Define the prompt texts
+            const prompts = {
+                well: "What went well?",
+                challenging: "What was challenging?",
+                future: "What will you work on or change in the future?",
+                star: "Situation: \nTask: \nAction: \nResult:"
+            };
+
             function initializeMainApp(userId) {
                 if (appIsInitialized) return;
                 appIsInitialized = true;
                 currentUserId = userId;
-                const toolbarOptions = [['bold', 'italic', 'underline'],[{ 'list': 'ordered' }, { 'list': 'bullet' }],['clean']];
+                const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
                 reflectionQuill = new Quill('#reflection', { theme: 'snow', modules: { toolbar: toolbarOptions } });
                 feedbackQuill = new Quill('#feedback', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+
+                // Event listener for the "Insert Prompt" button
+                document.getElementById('insertPromptBtn').addEventListener('click', () => {
+                    const promptSelect = document.getElementById('promptSelect');
+                    const selectedPromptKey = promptSelect.value;
+                    const promptText = prompts[selectedPromptKey];
+                    if (promptText) {
+                        const currentContent = reflectionQuill.root.innerHTML;
+                        const newContent = `${currentContent}<br><br><strong>${promptText}</strong><br><br>`;
+                        reflectionQuill.root.innerHTML = newContent;
+                        reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
+                        reflectionQuill.focus();
+                    }
+                });
+
                 document.getElementById('newReflectionBtn').addEventListener('click', showEditorForNewReflection);
                 document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
                 document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
@@ -123,15 +154,50 @@
 
             function showListView() { document.getElementById('reflectionsListContainer').classList.remove('hidden'); document.getElementById('reflectionEditorContainer').classList.add('hidden'); currentReflectionId = null; }
             function showEditorView() { document.getElementById('reflectionsListContainer').classList.add('hidden'); document.getElementById('reflectionEditorContainer').classList.remove('hidden'); }
-            function showEditorForNewReflection() { currentReflectionId = null; document.getElementById('reflectionTitle').value = ''; reflectionQuill.setText(''); feedbackQuill.setText(''); document.getElementById('mediaPreviewContainer').innerHTML = ''; document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never'; showEditorView(); }
+
+            function showEditorForNewReflection() {
+                currentReflectionId = null;
+                document.getElementById('reflectionTitle').value = '';
+                reflectionQuill.setText('');
+                feedbackQuill.setText('');
+                document.getElementById('mediaPreviewContainer').innerHTML = '';
+                document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never';
+                // Reset the prompt dropdown
+                document.getElementById('promptSelect').value = '';
+                showEditorView();
+            }
             function listenForReflections() { if (!currentUserId) return; const q = query(collection(db, 'users', currentUserId, 'reflections'), orderBy('updatedAt', 'desc')); onSnapshot(q, (snapshot) => { const list = document.getElementById('reflectionsList'); list.innerHTML = ''; snapshot.docs.forEach(doc => { const reflection = { id: doc.id, ...doc.data() }; reflectionsCache.set(reflection.id, reflection); const li = document.createElement('li'); li.textContent = reflection.title || 'Untitled'; li.dataset.id = reflection.id; li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id)); list.appendChild(li); }); }); }
             function loadReflectionIntoEditor(id) { const reflection = reflectionsCache.get(id); if (!reflection) return; currentReflectionId = id; document.getElementById('reflectionTitle').value = reflection.title || ''; reflectionQuill.root.innerHTML = reflection.reflectionContent || ''; feedbackQuill.root.innerHTML = reflection.feedbackContent || ''; document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${reflection.updatedAt?.toDate().toLocaleString() || 'Never'}`; const mediaContainer = document.getElementById('mediaPreviewContainer'); mediaContainer.innerHTML = ''; (reflection.mediaUrls || []).forEach(url => { const img = document.createElement('img'); img.src = url; mediaContainer.appendChild(img); }); showEditorView(); }
             async function saveCurrentReflection() { if (!currentUserId) return; const data = { title: document.getElementById('reflectionTitle').value || 'Untitled', reflectionContent: reflectionQuill.root.innerHTML, feedbackContent: feedbackQuill.root.innerHTML, mediaUrls: Array.from(document.querySelectorAll('#mediaPreviewContainer img')).map(img => img.src), updatedAt: serverTimestamp() }; try { if (currentReflectionId) { await updateDoc(doc(db, 'users', currentUserId, 'reflections', currentReflectionId), data); } else { await addDoc(collection(db, 'users', currentUserId, 'reflections'), data); } showAppMessage('Reflection saved!'); showListView(); } catch (e) { console.error("Save error:", e); showAppMessage('Error saving.'); } }
             async function deleteReflection(id) { if (!currentUserId || !id) return; try { await deleteDoc(doc(db, 'users', currentUserId, 'reflections', id)); showAppMessage('Reflection deleted.'); showListView(); } catch (e) { console.error("Delete error:", e); showAppMessage('Error deleting.'); } }
-            async function handleMediaUpload(event) { const files = event.target.files; const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`; const mediaContainer = document.getElementById('mediaPreviewContainer'); for (const file of files) { const formData = new FormData(); formData.append('file', file); formData.append('upload_preset', 'Dental'); try { const res = await fetch(url, { method: 'POST', body: formData }); if (!res.ok) throw new Error('Upload failed.'); const data = await res.json(); const img = document.createElement('img'); img.src = data.secure_url; mediaContainer.appendChild(img); } catch (e) { console.error('Upload error:', e); showAppMessage('Error uploading.'); } } }
+            // Updated handleMediaUpload function
+async function handleMediaUpload(event) {
+    const files = event.target.files;
+    // The URL is now correct with your cloud name
+    const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`;
+    // The upload preset is now correct and case-sensitive
+    const uploadPreset = 'ReflectDent';
+    const mediaContainer = document.getElementById('mediaPreviewContainer');
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+        try {
+            const res = await fetch(url, { method: 'POST', body: formData });
+            if (!res.ok) throw new Error('Upload failed.');
+            const data = await res.json();
+            const img = document.createElement('img');
+            img.src = data.secure_url;
+            mediaContainer.appendChild(img);
+        } catch (e) {
+            console.error('Upload error:', e);
+            showAppMessage('Error uploading.');
+        }
+    }
+}
             function showConfirmationModal(id) { if (!id) return; const modal = document.getElementById('confirmationModal'); modal.classList.add('active'); document.getElementById('confirmYes').onclick = () => { deleteReflection(id); modal.classList.remove('active'); }; document.getElementById('confirmNo').onclick = () => modal.classList.remove('active'); }
             function showAppMessage(text) { const el = document.getElementById('message'); el.textContent = text; el.classList.add('show-message'); setTimeout(() => el.classList.remove('show-message'), 3000); }
-            
+
             // --- STEP 5: Authentication Bridge ---
             async function authenticateWithFirebase(user) {
                 if (!user || !user.token || !user.token.access_token) return;
@@ -147,11 +213,11 @@
                 document.getElementById('app-content').style.display = firebaseUser ? 'block' : 'none';
                 if (firebaseUser) initializeMainApp(firebaseUser.uid);
             });
-            
+
             netlifyIdentity.on('login', (user) => { netlifyIdentity.close(); authenticateWithFirebase(user); });
             netlifyIdentity.on('logout', async () => { if (auth.currentUser) await signOut(auth); window.location.reload(); });
             netlifyIdentity.on('init', (user) => { if (user) authenticateWithFirebase(user); });
-            
+
             // --- Dark Mode ---
             const themeToggle = document.getElementById('themeToggle');
             const savedTheme = localStorage.getItem('myTechnicalReflection_theme');
@@ -165,4 +231,3 @@
     </script>
 </body>
 </html>
-
