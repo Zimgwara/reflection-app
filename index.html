@@ -238,8 +238,15 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for Firebase configuration
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = {
+  apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
+  authDomain: "reflect-dent-app.firebaseapp.com",
+  projectId: "reflect-dent-app",
+  storageBucket: "reflect-dent-app.firebasestorage.app",
+  messagingSenderId: "204434901803",
+  appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
+  measurementId: "G-HJ0F5QXH1W"
+};
 
         // Quill is globally available via the script tag
         const Quill = window.Quill;
