@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflect-Dent App</title>
+    <title>ReflectDent App</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>">
     <link href="https://cdn.quilljs.com/2.0.0-rc.4/quill.snow.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,6 @@
       gtag('config', 'G-HJ0F5QXH1W');
     </script>
     <style>
-        /* All CSS from the original style.css file is now here */
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
@@ -454,7 +453,6 @@
     </button>
     <main>
         <div id="authContainer" class="card">
-            <!-- Replaced the external image with a self-contained SVG for reliability -->
             <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <rect width="100" height="100" rx="20" ry="20" fill="#3498db"/>
                 <path d="M50 20 L60 35 L40 35 Z" fill="#ffffff"/>
@@ -462,7 +460,7 @@
                 <circle cx="42" cy="55" r="5" fill="#3498db"/>
                 <circle cx="58" cy="55" r="5" fill="#3498db"/>
             </svg>
-            <h1>Welcome to Reflect-Dent</h1>
+            <h1>Welcome to ReflectDent</h1>
             <p>Sign in with your university email to get started.</p>
             <form id="authForm">
                 <input type="email" id="emailInput" placeholder="st.....@outlook.cardiffmet.ac.uk" required>
@@ -474,6 +472,12 @@
             </form>
             <div id="authMessage" class="message-box" style="margin-top: 15px;"></div>
             <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+        </div>
+        
+        <div id="firebaseError" class="card hidden">
+            <h1>Connection Error</h1>
+            <p>We could not connect to the database. Please check your internet connection and try again.</p>
+            <div class="message-box error">Firebase config is missing. App will run in limited mode without database functionality.</div>
         </div>
 
         <div id="resetPasswordContainer" class="card hidden">
@@ -562,9 +566,8 @@
         </div>
     </main>
 
-    <!-- Added the footer element here -->
     <footer class="footer">
-        <p>Reflect-Dent App | Copyright © 2024</p>
+        <p>ReflectDent App | Copyright © 2024</p>
     </footer>
 
     <!-- Custom Modal for Alerts/Confirms -->
@@ -584,31 +587,13 @@
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, updateDoc, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        // --- Firebase Initialisation ---
         let app, auth, db;
-        
-        // Use the global variables provided by the platform
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        try {
-            if (Object.keys(firebaseConfig).length > 0) {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } else {
-                console.warn('Firebase config is missing. App will run in limited mode without database functionality.');
-            }
-        } catch (error) {
-            console.error('Failed to initialize Firebase:', error);
-        }
-
         let currentReflectionId = null;
         let unsubscribeFromReflections = null;
         let isAuthReady = false;
 
         const authContainer = document.getElementById('authContainer');
+        const firebaseErrorContainer = document.getElementById('firebaseError');
         const resetPasswordContainer = document.getElementById('resetPasswordContainer');
         const mainAppContainer = document.getElementById('mainAppContainer');
         const reflectionsList = document.getElementById('reflectionsList');
@@ -624,16 +609,14 @@
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
         const modalButtons = document.getElementById('modalButtons');
-        
         const emailInput = document.getElementById('emailInput');
         const passwordInput = document.getElementById('passwordInput');
         const resetEmailInput = document.getElementById('resetEmailInput');
+        const authMessage = document.getElementById('authMessage');
 
         let reflectionQuill = null;
         let feedbackQuill = null;
         
-        const authMessage = document.getElementById('authMessage');
-
         const prompts = {
             "What happened?": "What happened?",
             "What were you thinking and feeling?": "What were you thinking and feeling?",
@@ -646,6 +629,7 @@
         const showView = (viewId) => {
             const views = {
                 authView: authContainer,
+                firebaseErrorView: firebaseErrorContainer,
                 resetView: resetPasswordContainer,
                 mainAppView: mainAppContainer,
                 listView: reflectionsList.parentNode,
@@ -676,14 +660,12 @@
         const showError = (message) => {
             console.error(message);
             authMessage.textContent = message;
-            // Updated to add the error class for proper styling
             authMessage.classList.remove('success');
             authMessage.classList.add('error');
         };
         
         const showSuccess = (message) => {
             authMessage.textContent = message;
-            // Updated to add the success class for proper styling
             authMessage.classList.remove('error');
             authMessage.classList.add('success');
         };
@@ -895,7 +877,6 @@
                 }
             });
             
-            // Custom Image Handler for Quill
             const imageHandler = () => {
                 fileInput.click();
             };
@@ -995,6 +976,44 @@
             // This can be used for more advanced features like autosaving
         };
 
+        const initializeFirebase = async () => {
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                    throw new Error('Firebase config is missing.');
+                }
+
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Use the token if it exists, otherwise sign in anonymously
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                // Auth state listener
+                onAuthStateChanged(auth, (user) => {
+                    isAuthReady = true;
+                    if (user) {
+                        setLoggedInUser(user);
+                        initializeMainApp();
+                    } else {
+                        showView('authView');
+                        document.querySelector('.user-id-display').classList.add('hidden');
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to initialize Firebase:', error);
+                showView('firebaseErrorView');
+            }
+        };
+
         // Theme Toggle
         const currentTheme = localStorage.getItem('myTechnicalReflection_theme');
         if (currentTheme) {
@@ -1020,78 +1039,59 @@
             }
         });
 
-        // Event listeners and initial auth logic moved into this block
-        if (auth) {
-            // Use the token if it exists, otherwise sign in anonymously
-            if (initialAuthToken) {
-                signInWithCustomToken(auth, initialAuthToken);
-            } else {
-                signInAnonymously(auth);
+        // Event listeners for auth buttons
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authMessage.textContent = 'Signing in...';
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showSuccess('Signed in successfully!');
+                showView('mainAppView');
+            } catch (error) {
+                showError('Sign-in failed: ' + error.message);
             }
+        });
 
-            // Auth state listener
-            onAuthStateChanged(auth, (user) => {
-                isAuthReady = true;
-                if (user) {
-                    setLoggedInUser(user);
-                    initializeMainApp();
-                } else {
+        document.getElementById('signUpBtn').addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authMessage.textContent = 'Creating account...';
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showSuccess('Account created successfully!');
+                showView('mainAppView');
+            } catch (error) {
+                showError('Sign-up failed: ' + error.message);
+            }
+        });
+
+        document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('resetView');
+        });
+
+        document.getElementById('sendResetLinkBtn').addEventListener('click', async () => {
+            const email = resetEmailInput.value;
+            if (email) {
+                authMessage.textContent = 'Sending reset link...';
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    showSuccess('Password reset email sent. Please check your inbox.');
                     showView('authView');
-                    document.querySelector('.user-id-display').classList.add('hidden');
-                }
-            });
-
-            // Event listeners for auth buttons
-            document.getElementById('authForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = emailInput.value;
-                const password = passwordInput.value;
-                authMessage.textContent = 'Signing in...';
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showSuccess('Signed in successfully!');
-                    showView('mainAppView');
                 } catch (error) {
-                    showError('Sign-in failed: ' + error.message);
+                    showError('Password reset failed: ' + error.message);
                 }
-            });
+            }
+        });
 
-            document.getElementById('signUpBtn').addEventListener('click', async () => {
-                const email = emailInput.value;
-                const password = passwordInput.value;
-                authMessage.textContent = 'Creating account...';
-                try {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showSuccess('Account created successfully!');
-                    showView('mainAppView');
-                } catch (error) {
-                    showError('Sign-up failed: ' + error.message);
-                }
-            });
+        document.getElementById('backToSignInBtn').addEventListener('click', () => {
+            showView('authView');
+        });
 
-            document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
-                e.preventDefault();
-                showView('resetView');
-            });
-
-            document.getElementById('sendResetLinkBtn').addEventListener('click', async () => {
-                const email = resetEmailInput.value;
-                if (email) {
-                    authMessage.textContent = 'Sending reset link...';
-                    try {
-                        await sendPasswordResetEmail(auth, email);
-                        showSuccess('Password reset email sent. Please check your inbox.');
-                        showView('authView');
-                    } catch (error) {
-                        showError('Password reset failed: ' + error.message);
-                    }
-                }
-            });
-
-            document.getElementById('backToSignInBtn').addEventListener('click', () => {
-                showView('authView');
-            });
-        }
+        // Start the app by trying to initialize Firebase
+        initializeFirebase();
     </script>
 </body>
 </html>
