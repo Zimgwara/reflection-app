@@ -628,8 +628,9 @@
         const firebaseErrorContainer = document.getElementById('firebaseError');
         const resetPasswordContainer = document.getElementById('resetPasswordContainer');
         const mainAppContainer = document.getElementById('mainAppContainer');
-        const reflectionsList = document.getElementById('reflectionsList');
+        const listViewContainer = document.getElementById('listViewContainer');
         const reflectionEditorContainer = document.getElementById('reflectionEditorContainer');
+        const reflectionsList = document.getElementById('reflectionsList');
         const reflectionTitle = document.getElementById('reflectionTitle');
         const creationDateSpan = document.getElementById('creationDate');
         const lastModifiedDateSpan = document.getElementById('lastModifiedDate');
@@ -665,7 +666,7 @@
                 firebaseErrorView: firebaseErrorContainer,
                 resetView: resetPasswordContainer,
                 mainAppView: mainAppContainer,
-                listView: reflectionsList.parentNode,
+                listView: listViewContainer,
                 editorView: reflectionEditorContainer
             };
 
@@ -673,10 +674,10 @@
 
             if (viewId === 'mainAppView') {
                 mainAppContainer.classList.remove('hidden');
-                views.listView.classList.remove('hidden');
+                listViewContainer.classList.remove('hidden');
             } else if (viewId === 'editorView') {
                 mainAppContainer.classList.remove('hidden');
-                views.editorView.classList.remove('hidden');
+                reflectionEditorContainer.classList.remove('hidden');
             } else {
                 views[viewId].classList.remove('hidden');
             }
@@ -1020,8 +1021,7 @@
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
-
-                // Auth state listener
+                
                 onAuthStateChanged(auth, (user) => {
                     isAuthReady = true;
                     if (user) {
@@ -1105,7 +1105,6 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showSuccess('Signed in successfully!');
-                showView('mainAppView');
             } catch (error) {
                 showError('Sign-in failed: ' + error.message);
             }
@@ -1118,7 +1117,6 @@
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 showSuccess('Account created successfully!');
-                showView('mainAppView');
             } catch (error) {
                 showError('Sign-up failed: ' + error.message);
             }
