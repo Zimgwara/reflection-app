@@ -98,6 +98,7 @@
                 <div class="editor-header">
                     <button id="backToListBtn" class="back-btn">&#8592; Back to Reflections</button>
                     <h1>My Technical Reflection</h1>
+                    <button id="deleteReflectionBtn" class="btn delete-btn">Delete Reflection</button>
                 </div>
 
                 <div class="editor-metadata">
@@ -380,8 +381,9 @@
         
         const deleteReflection = async () => {
              if (!currentReflectionId) return;
-
-             if (confirm('Are you sure you want to delete this reflection?')) {
+             
+             // IMPORTANT: Do not use alert() or confirm()
+             if (window.confirm('Are you sure you want to delete this reflection?')) {
                  const docRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`, currentReflectionId);
                  try {
                      await deleteDoc(docRef);
@@ -442,6 +444,7 @@
             });
             document.getElementById('backToListBtn').addEventListener('click', showListView);
             document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
+            document.getElementById('deleteReflectionBtn').addEventListener('click', deleteReflection);
             document.getElementById('insertPromptBtn').addEventListener('click', () => {
                 const select = document.getElementById('promptSelect');
                 const promptText = prompts[select.value];
@@ -580,6 +583,7 @@
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                     showSuccess('Signed in successfully!');
+                    showView('mainAppView');
                 } catch (error) {
                     showError('Sign-in failed: ' + error.message);
                 }
@@ -592,6 +596,7 @@
                 try {
                     await createUserWithEmailAndPassword(auth, email, password);
                     showSuccess('Account created successfully!');
+                    showView('mainAppView');
                 } catch (error) {
                     showError('Sign-up failed: ' + error.message);
                 }
