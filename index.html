@@ -34,7 +34,10 @@
                 <ul id="reflectionsList"></ul>
             </div>
             <div id="reflectionEditorContainer" class="hidden">
-                <h1>My Technical Reflection</h1>
+    <div class="editor-header">
+        <button id="backToListBtn" class="back-btn">&#8592; Back to Reflections</button>
+        <h1>My Technical Reflection</h1>
+    </div>
                 <input type="text" id="reflectionTitle" placeholder="Enter a title for this reflection...">
                 <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
                 <div class="section-block">
@@ -65,7 +68,7 @@
                     <div id="feedback" class="quill-editor"></div>
                 </div>
                 <div class="action-button-group">
-                    <button id="saveReflectionBtn">Save and Close</button>
+                    <button id="saveReflectionBtn">Save Reflection/button>
                     <button id="deleteReflectionBtn" class="delete-btn">Delete Reflection</button>
                     <button class="print-btn">Print / Save as PDF</button>
                 </div>
@@ -139,8 +142,9 @@
                 if (promptText) {
                     const currentContent = reflectionQuill.root.innerHTML;
                     const newContent = `${currentContent}<br><br><strong>${promptText}</strong><br><br>`;
-                    reflectionQuill.root.innerHTML = newContent;
-                    reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
+                    const delta = reflectionQuill.clipboard.convert({ html: `<strong>${promptText}</strong>` });
+reflectionQuill.setContents(delta, 'user');
+reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
                     reflectionQuill.focus();
                 }
             });
@@ -150,6 +154,7 @@
             document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
             document.getElementById('mediaUpload').addEventListener('change', handleMediaUpload);
             document.querySelector('.print-btn').addEventListener('click', () => window.print());
+            document.getElementById('backToListBtn').addEventListener('click', showListView);
             listenForReflections();
         }
 
@@ -159,8 +164,8 @@
         function showEditorForNewReflection() {
             currentReflectionId = null;
             document.getElementById('reflectionTitle').value = '';
-            reflectionQuill.setText('');
-            feedbackQuill.setText('');
+            reflectionQuill.setContents([]);
+            feedbackQuill.setContents([]);
             document.getElementById('mediaPreviewContainer').innerHTML = '';
             document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never';
             // Reset the prompt dropdown

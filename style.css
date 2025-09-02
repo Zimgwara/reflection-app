@@ -237,3 +237,76 @@ input:checked + .slider:before { transform: translateX(22px); }
 #message { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--text-color-heading-main); color: white; padding: 15px 25px; border-radius: 8px; z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
 #message.show-message { opacity: 1; visibility: visible; }
 
+/* Back Button Styling */
+.back-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-right: 20px;
+    transition: color 0.3s ease;
+}
+
+.back-btn:hover {
+    color: var(--primary-color);
+}
+
+.editor-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.editor-header h1 {
+    margin: 0;
+}
+
+/* Prompt Selection Layout */
+.prompt-selection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+/* Dropdown and Button Styling */
+#promptSelect {
+    flex-grow: 1;
+    min-width: 150px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color-light);
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+}
+
+#promptSelect:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+#insertPromptBtn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px auto; /* Centering the button */
+    display: block;
+}
+
+#insertPromptBtn:hover {
+    background-color: var(--primary-hover-color);
+}
