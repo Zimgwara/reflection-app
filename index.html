@@ -1,275 +1,553 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Technical Reflection App</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <meta name="theme-color" content="#2c3e50">
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
-    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflect-Dent App</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    <link href="https://cdn.quilljs.com/2.0.0-rc.4/quill.snow.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        /* This style block ensures the theme-toggle button is rendered correctly for your use case. */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            background: none;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle .icon {
+            font-size: 24px;
+            color: #3498db;
+        }
+
+        body.dark-mode .theme-toggle .icon {
+            color: #63b3ed;
+        }
+    </style>
 </head>
-<body>
-    <div class="top-header">
-        <div class="logo-container">
-            <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.onerror=null;this.src='https://placehold.co/160x80/cccccc/333333?text=Logo';">
-        </div>
-        <div data-netlify-identity-button></div>
-        <div class="theme-switch-wrapper top-right-corner">
-            <label class="theme-switch" for="themeToggle">
-                <input type="checkbox" id="themeToggle" role="switch">
-                <div class="slider round"></div>
-            </label>
-            <span class="theme-label">Dark Mode</span>
-        </div>
-    </div>
+<body class="light-mode">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="icon" id="theme-icon">🌙</span>
+    </button>
+    <main>
+        <div id="authContainer" class="card">
+            <img src="./company_logo.png" alt="Company Logo" class="logo">
+            <h1>Welcome to Reflect-Dent</h1>
+            <p>Sign in with your university email to get started.</p>
+            <form id="authForm">
+                <input type="email" id="emailInput" placeholder="university.email@ac.uk" required>
+                <input type="password" id="passwordInput" placeholder="Password" required>
+                <div class="button-group">
+                    <button type="submit" id="signInBtn">Sign In</button>
+                    <button type="button" id="signUpBtn" class="secondary-btn">Sign Up</button>
+                </div>
+            </form>
+            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+        </div>
 
-    <div id="app-content" style="display: none;">
-        <main class="container">
-            <div id="reflectionsListContainer">
-                <h1>My Reflections</h1>
-                <button id="newReflectionBtn">New Reflection</button>
-                <ul id="reflectionsList"></ul>
-            </div>
-            <div id="reflectionEditorContainer" class="hidden">
-    <div class="editor-header">
-        <button id="backToListBtn" class="back-btn">&#8592; Back to Reflections</button>
-        <h1>My Technical Reflection</h1>
-    </div>
-                <input type="text" id="reflectionTitle" placeholder="Enter a title for this reflection...">
-                <p class="last-saved-timestamp" id="lastSavedTimestamp">Last saved: Never</p>
-                <div class="section-block">
-                    <h2>Your Reflection:</h2>
-                    <div class="prompt-selection">
-                        <label for="promptSelect">Choose a prompt:</label>
-                        <select id="promptSelect">
-                            <option value="">-- Select a prompt --</option>
-                            <option value="well">What went well?</option>
-                            <option value="challenging">What was challenging?</option>
-                            <option value="future">What will you work on or change in the future?</option>
-                            <option value="star">STAR Reflection (Situation, Task, Action, Result)</option>
-                        </select>
-                        <button id="insertPromptBtn">Insert Prompt</button>
-                    </div>
-                    <div id="reflection" class="quill-editor"></div>
-                </div>
-                <div class="section-block">
-                    <h2>Attach Relevant Media</h2>
-                    <div class="image-upload-section">
-                        <label class="custom-file-upload" for="mediaUpload">Upload Image/Video</label>
-                        <input type="file" id="mediaUpload" accept="image/*,video/*" multiple>
-                        <div id="mediaPreviewContainer"></div>
-                    </div>
-                </div>
-                <div class="section-block" id="lecturerFeedbackSection">
-                    <h2>Lecturer Feedback</h2>
-                    <div id="feedback" class="quill-editor"></div>
-                </div>
-                <div class="action-button-group">
-                    <button id="saveReflectionBtn">Save Reflection/button>
-                    <button id="deleteReflectionBtn" class="delete-btn">Delete Reflection</button>
-                    <button class="print-btn">Print / Save as PDF</button>
-                </div>
-            </div>
-        </main>
-    </div>
+        <div id="resetPasswordContainer" class="card hidden">
+            <h1>Reset Password</h1>
+            <p>Enter your email address to receive a password reset link.</p>
+            <input type="email" id="resetEmailInput" placeholder="university.email@ac.uk" required>
+            <button id="sendResetLinkBtn">Send Reset Link</button>
+            <button id="backToSignInBtn" class="secondary-btn">Back to Sign In</button>
+        </div>
 
-    <div id="confirmationModal" class="modal-overlay">
-        <div class="modal-content">
-            <p id="modalMessage">Are you sure you want to delete this reflection?</p>
-            <div class="modal-buttons">
-                <button id="confirmYes" class="modal-btn confirm-yes-btn">Yes, Delete</button>
-                <button id="confirmNo" class="modal-btn confirm-no-btn">Cancel</button>
-            </div>
-        </div>
-    </div>
+        <div id="mainAppContainer" class="container hidden">
+            <header>
+                <div class="user-info">
+                    <span id="userName"></span>
+                    <button id="signOutBtn" class="secondary-btn">Sign Out</button>
+                </div>
+                <div class="user-id-display hidden">
+                    <p>Your User ID: <span id="userIdDisplay"></span></p>
+                </div>
+            </header>
 
-    <p id="message" aria-live="polite"></p>
+            <div id="listViewContainer">
+                <div class="actions">
+                    <button id="createNewBtn">+ New Reflection</button>
+                    <div class="sort-filter">
+                        <select id="sortSelect">
+                            <option value="last-modified">Sort by: Last Modified</option>
+                            <option value="creation-date">Sort by: Creation Date</option>
+                            <option value="title-az">Sort by: Title (A-Z)</option>
+                        </select>
+                        <input type="text" id="filterInput" placeholder="Filter by title...">
+                    </div>
+                </div>
+                <div id="reflectionsList" class="reflections-list">
+                    <!-- Reflections will be loaded here -->
+                </div>
+            </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
+            <div id="reflectionEditorContainer" class="hidden">
+                <div class="editor-header">
+                    <button id="backToListBtn" class="back-btn">&#8592; Back to Reflections</button>
+                    <h1>My Technical Reflection</h1>
+                </div>
 
-    <script type="module">
-    // --- STEP 1: Firebase Configuration ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
-        authDomain: "reflect-dent-app.firebaseapp.com",
-        projectId: "reflect-dent-app",
-        storageBucket: "reflect-dent-app.firebasestorage.app",
-        messagingSenderId: "204434901803",
-        appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
-        measurementId: "G-HJ0F5QXH1W"
-    };
+                <div class="editor-metadata">
+                    <input type="text" id="reflectionTitle" placeholder="e.g., mandibular right first molar full gold crown" required>
+                    <div class="date-info">
+                        <span id="creationDate"></span>
+                        <span id="lastModifiedDate"></span>
+                    </div>
+                </div>
 
-    // --- STEP 2: Import Firebase Modules ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+                <div class="prompt-section">
+                    <p class="prompt-label">Choose a prompt:</p>
+                    <select id="promptSelect">
+                        <option value="">Select a prompt</option>
+                        <option value="What happened?">What happened?</option>
+                        <option value="What were you thinking and feeling?">What were you thinking and feeling?</option>
+                        <option value="What was the effect of this on you and on others?">What was the effect of this on you and on others?</option>
+                        <option value="What was good and bad about the experience?">What was good and bad about the experience?</option>
+                        <option value="What sense can you make of the situation?">What sense can you make of the situation?</option>
+                        <option value="What are you going to do differently next time?">What are you going to do differently next time?</option>
+                    </select>
+                    <button id="insertPromptBtn" class="secondary-btn">Insert Prompt</button>
+                </div>
 
-    try {
-        // --- STEP 3: Initialize Firebase ---
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+                <div class="rich-text-container">
+                    <div id="reflectionEditor" class="ql-container"></div>
+                </div>
 
-        // --- STEP 4: Application Logic ---
-        let reflectionQuill, feedbackQuill, currentUserId = null, currentReflectionId = null;
-        const reflectionsCache = new Map();
-        let appIsInitialized = false;
+                <div class="feedback-section">
+                    <h3>Feedback from Lecturer</h3>
+                    <div class="rich-text-container">
+                        <div id="feedbackEditor" class="ql-container"></div>
+                    </div>
+                </div>
 
-        // Define the prompt texts
+                <div class="action-buttons">
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <button id="uploadImageBtn" class="btn">Upload Image</button>
+                    <button id="takePhotoBtn" class="btn">Take Photo</button>
+                    <button id="saveReflectionBtn" class="btn">Save Reflection</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Reflect-Dent App. All Rights Reserved.</p>
+            <div class="footer-links">
+                <a href="./privacy_policy.html">Privacy Policy</a>
+                <a href="./terms_and_conditions.html">Terms and Conditions</a>
+                <a href="mailto:support@reflectdent.com">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, updateDoc, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // Global variables for Firebase configuration
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        // Quill is globally available via the script tag
+        const Quill = window.Quill;
+
+        // --- Firebase Initialisation ---
+        let app, auth, db;
+        try {
+            if (Object.keys(firebaseConfig).length > 0) {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } else {
+                console.warn('Firebase config is missing. App will run in limited mode without database functionality.');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Firebase:', error);
+        }
+
+        let currentReflectionId = null;
+        let unsubscribeFromReflections = null;
+        let isAuthReady = false;
+
+        const authContainer = document.getElementById('authContainer');
+        const resetPasswordContainer = document.getElementById('resetPasswordContainer');
+        const mainAppContainer = document.getElementById('mainAppContainer');
+        const reflectionsList = document.getElementById('reflectionsList');
+        const reflectionEditorContainer = document.getElementById('reflectionEditorContainer');
+        const reflectionTitle = document.getElementById('reflectionTitle');
+        const creationDateSpan = document.getElementById('creationDate');
+        const lastModifiedDateSpan = document.getElementById('lastModifiedDate');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const fileInput = document.getElementById('fileInput');
+
+        let reflectionQuill = null;
+        let feedbackQuill = null;
+
         const prompts = {
-            well: "What went well?",
-            challenging: "What was challenging?",
-            future: "What will you work on or change in the future?",
-            star: "Situation: \nTask: \nAction: \nResult:"
+            "What happened?": "What happened?",
+            "What were you thinking and feeling?": "What were you thinking and feeling?",
+            "What was the effect of this on you and on others?": "What was the effect of this on you and on others?",
+            "What was good and bad about the experience?": "What was good and bad about the experience?",
+            "What sense can you make of the situation?": "What sense can you make of the situation?",
+            "What are you going to do differently next time?": "What are you going to do differently next time?"
         };
 
-        function initializeMainApp(userId) {
-            if (appIsInitialized) return;
-            appIsInitialized = true;
-            currentUserId = userId;
-            const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
-            reflectionQuill = new Quill('#reflection', { theme: 'snow', modules: { toolbar: toolbarOptions } });
-            feedbackQuill = new Quill('#feedback', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+        const showView = (viewId) => {
+            const views = {
+                authView: authContainer,
+                resetView: resetPasswordContainer,
+                mainAppView: mainAppContainer,
+                listView: reflectionsList.parentNode,
+                editorView: reflectionEditorContainer
+            };
 
-            // Event listener for the "Insert Prompt" button
-            document.getElementById('insertPromptBtn').addEventListener('click', () => {
-                const promptSelect = document.getElementById('promptSelect');
-                const selectedPromptKey = promptSelect.value;
-                const promptText = prompts[selectedPromptKey];
-                if (promptText) {
-                    const currentContent = reflectionQuill.root.innerHTML;
-                    const newContent = `${currentContent}<br><br><strong>${promptText}</strong><br><br>`;
-                    const delta = reflectionQuill.clipboard.convert({ html: `<strong>${promptText}</strong>` });
-reflectionQuill.setContents(delta, 'user');
-reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
-                    reflectionQuill.focus();
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+
+            if (viewId === 'mainAppView') {
+                mainAppContainer.classList.remove('hidden');
+                views.listView.classList.remove('hidden');
+            } else if (viewId === 'editorView') {
+                mainAppContainer.classList.remove('hidden');
+                views.editorView.classList.remove('hidden');
+            } else {
+                views[viewId].classList.remove('hidden');
+            }
+        };
+
+        const setLoggedInUser = (user) => {
+            const userName = user.email.split('@')[0];
+            document.getElementById('userName').textContent = `Welcome, ${userName}!`;
+            userIdDisplay.textContent = user.uid;
+            document.querySelector('.user-id-display').classList.remove('hidden');
+            showView('mainAppView');
+        };
+
+        const showError = (message) => {
+            console.error(message);
+        };
+
+        const formatDate = (timestamp) => {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        };
+
+        const showListView = () => {
+            showView('mainAppView');
+            currentReflectionId = null;
+        };
+
+        const saveCurrentReflection = async () => {
+            if (!isAuthReady || !auth.currentUser) {
+                showError("User not authenticated.");
+                return;
+            }
+
+            const reflectionContent = reflectionQuill.getContents();
+            const feedbackContent = feedbackQuill.getContents();
+            const title = reflectionTitle.value.trim();
+
+            if (title === '') {
+                alert('Please enter a title for your reflection.');
+                return;
+            }
+
+            const reflectionData = {
+                title: title,
+                reflection: JSON.stringify(reflectionContent),
+                feedback: JSON.stringify(feedbackContent),
+                userId: auth.currentUser.uid,
+                lastModified: serverTimestamp()
+            };
+
+            const userReflectionsCollection = collection(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`);
+
+            try {
+                if (currentReflectionId) {
+                    const docRef = doc(userReflectionsCollection, currentReflectionId);
+                    await updateDoc(docRef, reflectionData);
+                    console.log("Reflection updated successfully!");
+                } else {
+                    reflectionData.createdAt = serverTimestamp();
+                    const docRef = await addDoc(userReflectionsCollection, reflectionData);
+                    currentReflectionId = docRef.id;
+                    console.log("Reflection saved successfully!");
+                }
+                showListView();
+            } catch (error) {
+                showError("Failed to save reflection: " + error.message);
+            }
+        };
+
+        const loadReflection = async (reflectionId) => {
+            if (!isAuthReady || !auth.currentUser) {
+                showError("User not authenticated.");
+                return;
+            }
+            
+            const docRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`, reflectionId);
+
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    currentReflectionId = reflectionId;
+                    reflectionTitle.value = data.title;
+                    creationDateSpan.textContent = `Created: ${formatDate(data.createdAt)}`;
+                    lastModifiedDateSpan.textContent = `Last Modified: ${formatDate(data.lastModified)}`;
+
+                    if (data.reflection) {
+                        reflectionQuill.setContents(JSON.parse(data.reflection));
+                    }
+                    if (data.feedback) {
+                        feedbackQuill.setContents(JSON.parse(data.feedback));
+                    }
+                    showView('editorView');
+                } else {
+                    showError("No such reflection exists.");
+                }
+            } catch (error) {
+                showError("Error loading reflection: " + error.message);
+            }
+        };
+
+        const updateReflectionsList = (reflections) => {
+            reflectionsList.innerHTML = '';
+            reflections.forEach(doc => {
+                const data = doc.data();
+                const reflectionCard = document.createElement('div');
+                reflectionCard.className = 'reflection-card';
+                reflectionCard.innerHTML = `
+                    <h3>${data.title}</h3>
+                    <p>Modified: ${formatDate(data.lastModified)}</p>
+                `;
+                reflectionCard.addEventListener('click', () => loadReflection(doc.id));
+                reflectionsList.appendChild(reflectionCard);
+            });
+        };
+
+        const listenForReflections = () => {
+            if (unsubscribeFromReflections) {
+                unsubscribeFromReflections();
+            }
+
+            if (!db || !auth.currentUser) {
+                console.error("Database or user not ready.");
+                return;
+            }
+
+            const userReflectionsCollection = collection(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`);
+            const q = query(userReflectionsCollection);
+            unsubscribeFromReflections = onSnapshot(q, (snapshot) => {
+                const reflections = [];
+                snapshot.forEach(doc => {
+                    reflections.push(doc);
+                });
+                updateReflectionsList(reflections);
+            }, (error) => {
+                showError("Error listening to reflections: " + error.message);
+            });
+        };
+        
+        const deleteReflection = async () => {
+             if (!currentReflectionId) return;
+
+             if (confirm('Are you sure you want to delete this reflection?')) {
+                 const docRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`, currentReflectionId);
+                 try {
+                     await deleteDoc(docRef);
+                     console.log("Reflection deleted successfully!");
+                     showListView();
+                 } catch (error) {
+                     showError("Error deleting reflection: " + error.message);
+                 }
+             }
+         };
+
+        const initializeMainApp = () => {
+            if (reflectionQuill) {
+                reflectionQuill.off('editor-change', handleEditorChange);
+            }
+            reflectionQuill = new Quill('#reflectionEditor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['blockquote', 'code-block'],
+                        ['link', 'image'],
+                        [{ 'align': [] }],
+                        [{ 'color': [] }, { 'background': [] }]
+                    ]
                 }
             });
 
-            document.getElementById('newReflectionBtn').addEventListener('click', showEditorForNewReflection);
-            document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
-            document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
-            document.getElementById('mediaUpload').addEventListener('change', handleMediaUpload);
-            document.querySelector('.print-btn').addEventListener('click', () => window.print());
-            document.getElementById('backToListBtn').addEventListener('click', showListView);
-            listenForReflections();
-        }
-
-        function showListView() { document.getElementById('reflectionsListContainer').classList.remove('hidden'); document.getElementById('reflectionEditorContainer').classList.add('hidden'); currentReflectionId = null; }
-        function showEditorView() { document.getElementById('reflectionsListContainer').classList.add('hidden'); document.getElementById('reflectionEditorContainer').classList.remove('hidden'); }
-
-        function showEditorForNewReflection() {
-            currentReflectionId = null;
-            document.getElementById('reflectionTitle').value = '';
-            reflectionQuill.setContents([]);
-            feedbackQuill.setContents([]);
-            document.getElementById('mediaPreviewContainer').innerHTML = '';
-            document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never';
-            // Reset the prompt dropdown
-            document.getElementById('promptSelect').value = '';
-            showEditorView();
-        }
-        function listenForReflections() { if (!currentUserId) return; const q = query(collection(db, 'users', currentUserId, 'reflections'), orderBy('updatedAt', 'desc')); onSnapshot(q, (snapshot) => { const list = document.getElementById('reflectionsList'); list.innerHTML = ''; snapshot.docs.forEach(doc => { const reflection = { id: doc.id, ...doc.data() }; reflectionsCache.set(reflection.id, reflection); const li = document.createElement('li'); li.textContent = reflection.title || 'Untitled'; li.dataset.id = reflection.id; li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id)); list.appendChild(li); }); }); }
-        function loadReflectionIntoEditor(id) { const reflection = reflectionsCache.get(id); if (!reflection) return; currentReflectionId = id; document.getElementById('reflectionTitle').value = reflection.title || ''; reflectionQuill.root.innerHTML = reflection.reflectionContent || ''; feedbackQuill.root.innerHTML = reflection.feedbackContent || ''; document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${reflection.updatedAt?.toDate().toLocaleString() || 'Never'}`; const mediaContainer = document.getElementById('mediaPreviewContainer'); mediaContainer.innerHTML = ''; (reflection.mediaUrls || []).forEach(url => { const img = document.createElement('img'); img.src = url; mediaContainer.appendChild(img); }); showEditorView(); }
-        async function saveCurrentReflection() {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                alert("You must be logged in to save a reflection.");
-                return;
+            if (feedbackQuill) {
+                feedbackQuill.off('editor-change', handleEditorChange);
             }
-            const data = {
-                title: document.getElementById('reflectionTitle').value || 'Untitled',
-                reflectionContent: reflectionQuill.root.innerHTML,
-                feedbackContent: feedbackQuill.root.innerHTML,
-                mediaUrls: Array.from(document.querySelectorAll('#mediaPreviewContainer img')).map(img => img.src),
-                userId: user.uid,
-                updatedAt: serverTimestamp()
+            feedbackQuill = new Quill('#feedbackEditor', {
+                theme: 'snow',
+                readOnly: true,
+                modules: {
+                    toolbar: false
+                }
+            });
+            
+            // Custom Image Handler for Quill
+            const imageHandler = () => {
+                fileInput.click();
             };
-            try {
-                if (currentReflectionId) {
-                    await updateDoc(doc(db, 'users', currentUserId, 'reflections', currentReflectionId), data);
-                } else {
-                    await addDoc(collection(db, 'users', currentUserId, 'reflections'), data);
+            reflectionQuill.getModule('toolbar').addHandler('image', imageHandler);
+
+            reflectionQuill.on('editor-change', handleEditorChange);
+
+            document.getElementById('createNewBtn').addEventListener('click', () => {
+                currentReflectionId = null;
+                reflectionTitle.value = '';
+                reflectionQuill.setContents([]);
+                feedbackQuill.setContents([]);
+                creationDateSpan.textContent = '';
+                lastModifiedDateSpan.textContent = '';
+                showView('editorView');
+            });
+            document.getElementById('backToListBtn').addEventListener('click', showListView);
+            document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
+            document.getElementById('insertPromptBtn').addEventListener('click', () => {
+                const select = document.getElementById('promptSelect');
+                const promptText = prompts[select.value];
+                if (promptText) {
+                     const delta = reflectionQuill.clipboard.convert({ html: `<strong>${promptText}</strong><br><br>` });
+                     reflectionQuill.setContents(delta, 'user');
+                     reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
                 }
-                showAppMessage('Reflection saved!');
-                showListView();
-            } catch (e) {
-                console.error("Save error:", e);
-                alert('Error saving. Check the console for details.');
-            }
-        }
-        async function deleteReflection(id) { if (!currentUserId || !id) return; try { await deleteDoc(doc(db, 'users', currentUserId, 'reflections', id)); showAppMessage('Reflection deleted.'); showListView(); } catch (e) { console.error("Delete error:", e); showAppMessage('Error deleting.'); } }
-        // Updated handleMediaUpload function
-        async function handleMediaUpload(event) {
-            const files = event.target.files;
-            // The URL is now correct with your cloud name
-            const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`;
-            // The upload preset is now correct and case-sensitive
-            const uploadPreset = 'ReflectDent';
-            const mediaContainer = document.getElementById('mediaPreviewContainer');
-            for (const file of files) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', uploadPreset);
+            });
+            
+            document.getElementById('uploadImageBtn').addEventListener('click', () => {
+                fileInput.removeAttribute('capture');
+                fileInput.click();
+            });
+
+            document.getElementById('takePhotoBtn').addEventListener('click', () => {
+                fileInput.setAttribute('capture', 'user');
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const storage = getStorage(app);
+                const storageRef = ref(storage, `images/${auth.currentUser.uid}/${file.name}-${Date.now()}`);
+
                 try {
-                    const res = await fetch(url, { method: 'POST', body: formData });
-                    if (!res.ok) throw new Error('Upload failed.');
-                    const data = await res.json();
-                    const img = document.createElement('img');
-                    img.src = data.secure_url;
-                    mediaContainer.appendChild(img);
-                } catch (e) {
-                    console.error('Upload error:', e);
-                    showAppMessage('Error uploading.');
+                    const snapshot = await uploadBytes(storageRef, file);
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+
+                    const range = reflectionQuill.getSelection(true);
+                    reflectionQuill.insertEmbed(range.index, 'image', downloadURL, 'user');
+                    reflectionQuill.setSelection(range.index + 1);
+
+                } catch (error) {
+                    console.error("Failed to upload image:", error);
                 }
+            });
+
+            document.getElementById('sortSelect').addEventListener('change', (e) => sortReflections(e.target.value));
+            document.getElementById('filterInput').addEventListener('input', (e) => filterReflections(e.target.value));
+            document.getElementById('signOutBtn').addEventListener('click', () => signOut(auth));
+            
+            listenForReflections();
+        };
+
+        const sortReflections = (sortBy) => {
+            const children = Array.from(reflectionsList.children);
+            children.sort((a, b) => {
+                const aData = a.dataset;
+                const bData = b.dataset;
+                if (sortBy === 'last-modified') {
+                    return bData.lastModified - aData.lastModified;
+                } else if (sortBy === 'creation-date') {
+                    return bData.createdAt - aData.createdAt;
+                } else if (sortBy === 'title-az') {
+                    return aData.title.localeCompare(bData.title);
+                }
+                return 0;
+            });
+            children.forEach(child => reflectionsList.appendChild(child));
+        };
+
+        const filterReflections = (filterText) => {
+            const cards = reflectionsList.querySelectorAll('.reflection-card');
+            cards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                if (title.includes(filterText.toLowerCase())) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        };
+
+        const handleEditorChange = (delta, oldDelta, source) => {
+            // This can be used for more advanced features like autosaving
+        };
+
+        // Theme Toggle
+        const currentTheme = localStorage.getItem('myTechnicalReflection_theme');
+        if (currentTheme) {
+            document.body.classList.remove('light-mode', 'dark-mode');
+            document.body.classList.add(currentTheme);
+        } else {
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.add('light-mode');
             }
         }
-        function showConfirmationModal(id) { if (!id) return; const modal = document.getElementById('confirmationModal'); modal.classList.add('active'); document.getElementById('confirmYes').onclick = () => { deleteReflection(id); modal.classList.remove('active'); }; document.getElementById('confirmNo').onclick = () => modal.classList.remove('active'); }
-        function showAppMessage(text) { const el = document.getElementById('message'); el.textContent = text; el.classList.add('show-message'); setTimeout(() => el.classList.remove('show-message'), 3000); }
-
-        // --- STEP 5: Authentication Bridge ---
-        async function authenticateWithFirebase(user) {
-            if (!user || !user.token || !user.token.access_token) return;
-            try {
-                const response = await fetch('/.netlify/functions/get-firebase-token', { method: 'POST', headers: { 'Authorization': `Bearer ${user.token.access_token}` } });
-                if (!response.ok) throw new Error(`Function status: ${response.status}`);
-                const data = await response.json();
-                await signInWithCustomToken(auth, data.token);
-            } catch (error) { console.error("Auth bridge failed:", error); }
-        }
-
-        onAuthStateChanged(auth, (firebaseUser) => {
-            document.getElementById('app-content').style.display = firebaseUser ? 'block' : 'none';
-            if (firebaseUser) initializeMainApp(firebaseUser.uid);
+        themeToggle.addEventListener('click', () => {
+            if (document.body.classList.contains('light-mode')) {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('myTechnicalReflection_theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                localStorage.setItem('myTechnicalReflection_theme', 'light');
+            }
         });
 
-        netlifyIdentity.on('login', (user) => { netlifyIdentity.close(); authenticateWithFirebase(user); });
-        netlifyIdentity.on('logout', async() => { if (auth.currentUser) await signOut(auth); window.location.reload(); });
-        netlifyIdentity.on('init', (user) => { if (user) authenticateWithFirebase(user); });
-
-        // --- Dark Mode ---
-        const themeToggle = document.getElementById('themeToggle');
-        const savedTheme = localStorage.getItem('myTechnicalReflection_theme');
-        if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.checked = true; }
-        themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('myTechnicalReflection_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); });
-
-    } catch (error) {
-        console.error("A FATAL ERROR OCCURRED:", error);
-        document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize. Check the console.</p></div>`;
-    }
-</script>
-<footer>
-    <div class="footer-content">
-        <p>&copy; 2024 Reflect-Dent App. All Rights Reserved.</p>
-        <div class="footer-links">
-            <a href="privacy_policy.html">Privacy Policy</a>
-            <a href="terms_and_conditions.html">Terms and Conditions</a>
-            <a href="mailto:support@reflectdent.com">Contact Us</a>
-        </div>
-    </div>
-</footer>
+        // Auth state listener
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                isAuthReady = true;
+                if (user) {
+                    setLoggedInUser(user);
+                    initializeMainApp();
+                } else {
+                    showView('authView');
+                    document.querySelector('.user-id-display').classList.add('hidden');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
