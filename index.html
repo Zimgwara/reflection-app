@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reflect-Dent App</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1a202c">
     <link href="https://cdn.quilljs.com/2.0.0-rc.4/quill.snow.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HJ0F5QXH1W"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -20,6 +16,330 @@
       gtag('config', 'G-HJ0F5QXH1W');
     </script>
     <style>
+        /* All CSS from the original style.css file is now here */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.light-mode {
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode a {
+            color: #63b3ed;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        .logo {
+            width: 128px;
+            height: 128px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode .card {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+
+        .card h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #1a202c;
+        }
+        
+        body.dark-mode .card h1 {
+            color: #e2e8f0;
+        }
+
+        .card p {
+            margin-bottom: 20px;
+            color: #718096;
+        }
+        
+        body.dark-mode .card p {
+            color: #a0aec0;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, background-color 0.3s;
+            font-size: 1rem;
+        }
+        
+        body.dark-mode input {
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        input::placeholder {
+            color: #a0aec0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        #signInBtn, #sendResetLinkBtn, #saveReflectionBtn, .btn {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        #signUpBtn, .secondary-btn, #backToSignInBtn {
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+        
+        body.dark-mode #signUpBtn, body.dark-mode .secondary-btn, body.dark-mode #backToSignInBtn {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .message-box {
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .message-box.error {
+            background-color: #fee2e2;
+            color: #c53030;
+        }
+
+        .message-box.success {
+            background-color: #f0fff4;
+            color: #2f855a;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reflections-list {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+
+        .reflection-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            text-align: left;
+        }
+        
+        body.dark-mode .reflection-card {
+            background-color: #2d3748;
+        }
+
+        .reflection-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .reflection-card h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #1a202c;
+        }
+        
+        body.dark-mode .reflection-card h3 {
+            color: #e2e8f0;
+        }
+
+        .reflection-card p {
+            margin: 5px 0 0;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sort-filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        #sortSelect, #filterInput {
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .editor-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .editor-metadata {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #reflectionTitle {
+            flex-grow: 1;
+        }
+
+        .ql-toolbar.ql-snow, .ql-container.ql-snow {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        
+        body.dark-mode .ql-toolbar.ql-snow, body.dark-mode .ql-container.ql-snow {
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .ql-editor {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        body.dark-mode .ql-snow .ql-stroke {
+            stroke: #a0aec0;
+        }
+        body.dark-mode .ql-snow .ql-fill {
+            fill: #a0aec0;
+        }
+
+        .rich-text-container {
+            min-height: 200px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        
+        .prompt-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .prompt-label {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        #promptSelect {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: #3498db;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         /* This style block ensures the theme-toggle button is rendered correctly for your use case. */
         .theme-toggle {
             position: absolute;
@@ -119,8 +439,8 @@
     </button>
     <main>
         <div id="authContainer" class="card">
-            <img src="./company_logo.png" alt="Company Logo" class="logo">
-            <h1>Welcome to Reflect-Dent</h1>
+            <img src="https://placehold.co/128x128/3498db/ffffff?text=Reflect-Dent+Logo" alt="Company Logo" class="logo">
+            <h1>Welcome to ReflectDent</h1>
             <p>Sign in with your university email to get started.</p>
             <form id="authForm">
                 <input type="email" id="emailInput" placeholder="st.....@outlook.cardiffmet.ac.uk" required>
@@ -237,22 +557,14 @@
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, updateDoc, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        // Global variables for Firebase configuration
-        const firebaseConfig = {
-  apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
-  authDomain: "reflect-dent-app.firebaseapp.com",
-  projectId: "reflect-dent-app",
-  storageBucket: "reflect-dent-app.firebasestorage.app",
-  messagingSenderId: "204434901803",
-  appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
-  measurementId: "G-HJ0F5QXH1W"
-};
-
-        // Quill is globally available via the script tag
-        const Quill = window.Quill;
-
         // --- Firebase Initialisation ---
         let app, auth, db;
+        
+        // Use the global variables provided by the platform
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
         try {
             if (Object.keys(firebaseConfig).length > 0) {
                 app = initializeApp(firebaseConfig);
@@ -285,6 +597,10 @@
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
         const modalButtons = document.getElementById('modalButtons');
+        
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const resetEmailInput = document.getElementById('resetEmailInput');
 
         let reflectionQuill = null;
         let feedbackQuill = null;
@@ -504,19 +820,19 @@
         };
         
         const deleteReflection = async () => {
-             if (!currentReflectionId) return;
-             
-             showCustomModal('Delete Reflection', 'Are you sure you want to delete this reflection?', true, async () => {
-                 const docRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`, currentReflectionId);
-                 try {
-                     await deleteDoc(docRef);
-                     console.log("Reflection deleted successfully!");
-                     showListView();
-                 } catch (error) {
-                     showError("Error deleting reflection: " + error.message);
-                 }
-             });
-         };
+            if (!currentReflectionId) return;
+            
+            showCustomModal('Delete Reflection', 'Are you sure you want to delete this reflection?', true, async () => {
+                const docRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`, currentReflectionId);
+                try {
+                    await deleteDoc(docRef);
+                    console.log("Reflection deleted successfully!");
+                    showListView();
+                } catch (error) {
+                    showError("Error deleting reflection: " + error.message);
+                }
+            });
+        };
 
         const initializeMainApp = () => {
             if (reflectionQuill) {
@@ -572,9 +888,9 @@
                 const select = document.getElementById('promptSelect');
                 const promptText = prompts[select.value];
                 if (promptText) {
-                     const delta = reflectionQuill.clipboard.convert({ html: `<strong>${promptText}</strong><br><br>` });
-                     reflectionQuill.setContents(delta, 'user');
-                     reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
+                    const delta = reflectionQuill.clipboard.convert({ html: `<strong>${promptText}</strong><br><br>` });
+                    reflectionQuill.setContents(delta, 'user');
+                    reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
                 }
             });
             
@@ -676,10 +992,10 @@
         // Event listeners and initial auth logic moved into this block
         if (auth) {
             // Use the token if it exists, otherwise sign in anonymously
-            if (typeof __initial_auth_token !== 'undefined') {
-              signInWithCustomToken(auth, __initial_auth_token);
+            if (initialAuthToken) {
+                signInWithCustomToken(auth, initialAuthToken);
             } else {
-              signInAnonymously(auth);
+                signInAnonymously(auth);
             }
 
             // Auth state listener
@@ -734,8 +1050,9 @@
                     try {
                         await sendPasswordResetEmail(auth, email);
                         showSuccess('Password reset email sent. Please check your inbox.');
+                        showView('authView');
                     } catch (error) {
-                        showError('Failed to send reset email: ' + error.message);
+                        showError('Password reset failed: ' + error.message);
                     }
                 }
             });
