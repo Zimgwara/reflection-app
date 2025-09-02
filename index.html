@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflect-Dent App</title>
+    <title>ReflectDent App</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1a202c">
@@ -44,23 +44,24 @@
     <main>
         <div id="authContainer" class="card">
             <img src="./company_logo.png" alt="Company Logo" class="logo">
-            <h1>Welcome to Reflect-Dent</h1>
+            <h1>Welcome to ReflectDent</h1>
             <p>Sign in with your university email to get started.</p>
             <form id="authForm">
-                <input type="email" id="emailInput" placeholder="university.email@ac.uk" required>
+                <input type="email" id="emailInput" placeholder="st.....@outlook.cardiffmet.ac.uk" required>
                 <input type="password" id="passwordInput" placeholder="Password" required>
                 <div class="button-group">
                     <button type="submit" id="signInBtn">Sign In</button>
                     <button type="button" id="signUpBtn" class="secondary-btn">Sign Up</button>
                 </div>
             </form>
+            <div id="authMessage" class="message-box" style="margin-top: 15px;"></div>
             <a href="#" id="forgotPasswordLink">Forgot Password?</a>
         </div>
 
         <div id="resetPasswordContainer" class="card hidden">
             <h1>Reset Password</h1>
             <p>Enter your email address to receive a password reset link.</p>
-            <input type="email" id="resetEmailInput" placeholder="university.email@ac.uk" required>
+            <input type="email" id="resetEmailInput" placeholder="st.....@outlook.cardiffmet.ac.uk" required>
             <button id="sendResetLinkBtn">Send Reset Link</button>
             <button id="backToSignInBtn" class="secondary-btn">Back to Sign In</button>
         </div>
@@ -199,6 +200,8 @@
 
         let reflectionQuill = null;
         let feedbackQuill = null;
+        
+        const authMessage = document.getElementById('authMessage');
 
         const prompts = {
             "What happened?": "What happened?",
@@ -241,6 +244,13 @@
 
         const showError = (message) => {
             console.error(message);
+            authMessage.textContent = message;
+            authMessage.style.color = '#e74c3c';
+        };
+        
+        const showSuccess = (message) => {
+            authMessage.textContent = message;
+            authMessage.style.color = '#2ecc71';
         };
 
         const formatDate = (timestamp) => {
@@ -535,6 +545,54 @@
             }
         });
 
+        // Event listeners for auth buttons
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authMessage.textContent = 'Signing in...';
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showSuccess('Signed in successfully!');
+            } catch (error) {
+                showError('Sign-in failed: ' + error.message);
+            }
+        });
+
+        document.getElementById('signUpBtn').addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authMessage.textContent = 'Creating account...';
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showSuccess('Account created successfully!');
+            } catch (error) {
+                showError('Sign-up failed: ' + error.message);
+            }
+        });
+
+        document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('resetView');
+        });
+
+        document.getElementById('sendResetLinkBtn').addEventListener('click', async () => {
+            const email = resetEmailInput.value;
+            if (email) {
+                authMessage.textContent = 'Sending reset link...';
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    showSuccess('Password reset email sent. Please check your inbox.');
+                } catch (error) {
+                    showError('Failed to send reset email: ' + error.message);
+                }
+            }
+        });
+
+        document.getElementById('backToSignInBtn').addEventListener('click', () => {
+            showView('authView');
+        });
+        
         // Auth state listener
         if (auth) {
             onAuthStateChanged(auth, (user) => {
