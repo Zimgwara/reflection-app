@@ -6,7 +6,7 @@
     <title>My Technical Reflection App</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <!-- Reminder: The 'icons' folder must exist in your project for this to work -->
+    <!-- Reminder: To fix the 404 error, an 'icons' folder containing 'icon-192x192.png' must be in your project. -->
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#2c3e50">
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.snow.css" rel="stylesheet">
@@ -76,14 +76,11 @@
     
     <p id="message" aria-live="polite"></p>
 
-    <!-- External libraries are loaded first -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
     
-    <!-- All application code is now in this single, robust module script -->
     <script type="module">
         // --- STEP 1: Firebase Configuration ---
         // PASTE YOUR ENTIRE FIREBASE CONFIG OBJECT FROM THE FIREBASE CONSOLE HERE.
-        // It should start with 'const firebaseConfig = {' and end with '};'
         const firebaseConfig = {
             apiKey: "PASTE_YOUR_API_KEY",
             authDomain: "PASTE_YOUR_AUTH_DOMAIN",
@@ -98,16 +95,13 @@
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, getDocs, updateDoc, deleteDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-        // This is a safety wrapper to catch any critical errors during setup.
         try {
             // --- STEP 3: Initialize Firebase ---
-            console.log("STEP 1: Initializing Firebase...");
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const db = getFirestore(app);
-            console.log("STEP 2: Firebase initialized successfully!");
 
-            // --- STEP 4: Application Logic ---
+            // --- STEP 4: Application Logic (exactly as before) ---
             let reflectionQuill, feedbackQuill;
             let currentUserId = null;
             let currentReflectionId = null;
@@ -118,191 +112,42 @@
             const reflectionEditorContainer = document.getElementById('reflectionEditorContainer');
             
             function initializeMainApp(userId) {
-                console.log("STEP 6: Initializing main application for user:", userId);
+                if (appIsInitialized) return; // Prevent re-initialization
+                appIsInitialized = true;
+
                 currentUserId = userId;
-
-                const toolbarOptions = [
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                    ['clean']
-                ];
-
+                const toolbarOptions = [['bold', 'italic', 'underline'],[{ 'list': 'ordered' }, { 'list': 'bullet' }],['clean']];
                 reflectionQuill = new Quill('#reflection', { theme: 'snow', modules: { toolbar: toolbarOptions } });
                 feedbackQuill = new Quill('#feedback', { theme: 'snow', modules: { toolbar: toolbarOptions } });
-
                 document.getElementById('newReflectionBtn').addEventListener('click', showEditorForNewReflection);
                 document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
                 document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
                 document.getElementById('mediaUpload').addEventListener('change', handleMediaUpload);
                 document.querySelector('.print-btn').addEventListener('click', printPage);
-
                 listenForReflections();
-                console.log("STEP 7: Main application is ready!");
             }
 
-            function showListView() {
-                reflectionsListContainer.classList.remove('hidden');
-                reflectionEditorContainer.classList.add('hidden');
-                currentReflectionId = null;
-            }
-
-            function showEditorView() {
-                reflectionsListContainer.classList.add('hidden');
-                reflectionEditorContainer.classList.remove('hidden');
-            }
-
-            function showEditorForNewReflection() {
-                currentReflectionId = null;
-                document.getElementById('reflectionTitle').value = '';
-                reflectionQuill.setText('');
-                feedbackQuill.setText('');
-                document.getElementById('mediaPreviewContainer').innerHTML = '';
-                document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never';
-                showEditorView();
-            }
-
-            function listenForReflections() {
-                if (!currentUserId) return;
-                const reflectionsCol = collection(db, 'users', currentUserId, 'reflections');
-                const q = query(reflectionsCol, orderBy('updatedAt', 'desc'));
-
-                onSnapshot(q, (snapshot) => {
-                    const reflectionsList = document.getElementById('reflectionsList');
-                    reflectionsList.innerHTML = '';
-                    snapshot.docs.forEach(doc => {
-                        const reflection = { id: doc.id, ...doc.data() };
-                        reflectionsCache.set(reflection.id, reflection);
-                        const li = document.createElement('li');
-                        li.textContent = reflection.title || 'Untitled Reflection';
-                        li.dataset.id = reflection.id;
-                        li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id));
-                        reflectionsList.appendChild(li);
-                    });
-                });
-            }
-
-            function loadReflectionIntoEditor(reflectionId) {
-                const reflection = reflectionsCache.get(reflectionId);
-                if (!reflection) return;
-
-                currentReflectionId = reflectionId;
-                document.getElementById('reflectionTitle').value = reflection.title || '';
-                reflectionQuill.root.innerHTML = reflection.reflectionContent || '';
-                feedbackQuill.root.innerHTML = reflection.feedbackContent || '';
-
-                const timestamp = reflection.updatedAt?.toDate().toLocaleString() || 'Never';
-                document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${timestamp}`;
-
-                const mediaContainer = document.getElementById('mediaPreviewContainer');
-                mediaContainer.innerHTML = '';
-                if (reflection.mediaUrls && reflection.mediaUrls.length > 0) {
-                    reflection.mediaUrls.forEach(url => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        mediaContainer.appendChild(img);
-                    });
-                }
-                showEditorView();
-            }
-
-            async function saveCurrentReflection() {
-                if (!currentUserId) return;
-
-                const reflectionData = {
-                    title: document.getElementById('reflectionTitle').value || 'Untitled Reflection',
-                    reflectionContent: reflectionQuill.root.innerHTML,
-                    feedbackContent: feedbackQuill.root.innerHTML,
-                    mediaUrls: Array.from(document.querySelectorAll('#mediaPreviewContainer img')).map(img => img.src),
-                    updatedAt: serverTimestamp()
-                };
-
-                try {
-                    if (currentReflectionId) {
-                        const docRef = doc(db, 'users', currentUserId, 'reflections', currentReflectionId);
-                        await updateDoc(docRef, reflectionData);
-                        showAppMessage('Reflection updated!');
-                    } else {
-                        const collectionRef = collection(db, 'users', currentUserId, 'reflections');
-                        await addDoc(collectionRef, reflectionData);
-                        showAppMessage('Reflection saved!');
-                    }
-                    showListView();
-                } catch (error) {
-                    console.error("Error saving reflection:", error);
-                    showAppMessage('Error: Could not save reflection.');
-                }
-            }
-            
-            async function deleteReflection(reflectionId) {
-                if (!currentUserId || !reflectionId) return;
-                try {
-                    const docRef = doc(db, 'users', currentUserId, 'reflections', reflectionId);
-                    await deleteDoc(docRef);
-                    showAppMessage('Reflection deleted.');
-                    showListView();
-                } catch (error) {
-                    console.error("Error deleting reflection:", error);
-                    showAppMessage('Error: Could not delete reflection.');
-                }
-            }
-            
-            async function handleMediaUpload(event) {
-                const files = event.target.files;
-                const cloudName = 'dslh2taed';
-                const uploadPreset = 'Dental';
-                const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-                const mediaContainer = document.getElementById('mediaPreviewContainer');
-
-                for (const file of files) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('upload_preset', uploadPreset);
-                    try {
-                        const response = await fetch(url, { method: 'POST', body: formData });
-                        if (!response.ok) throw new Error('Upload to Cloudinary failed.');
-                        const data = await response.json();
-                        const img = document.createElement('img');
-                        img.src = data.secure_url;
-                        mediaContainer.appendChild(img);
-                    } catch (error) {
-                        console.error('Error uploading media:', error);
-                        showAppMessage('Error uploading media.');
-                    }
-                }
-            }
-
-            const confirmationModal = document.getElementById('confirmationModal');
-            const confirmYesBtn = document.getElementById('confirmYes');
-            const confirmNoBtn = document.getElementById('confirmNo');
-
-            function showConfirmationModal(reflectionId) {
-                if (!reflectionId) return;
-                confirmationModal.classList.add('active');
-                confirmYesBtn.onclick = () => {
-                    deleteReflection(reflectionId);
-                    confirmationModal.classList.remove('active');
-                };
-                confirmNoBtn.onclick = () => confirmationModal.classList.remove('active');
-            }
-
-            function showAppMessage(messageText) {
-                const messageElement = document.getElementById('message');
-                messageElement.textContent = messageText;
-                messageElement.classList.add('show-message');
-                setTimeout(() => messageElement.classList.remove('show-message'), 3000);
-            }
-
+            function showListView() { reflectionsListContainer.classList.remove('hidden'); reflectionEditorContainer.classList.add('hidden'); currentReflectionId = null; }
+            function showEditorView() { reflectionsListContainer.classList.add('hidden'); reflectionEditorContainer.classList.remove('hidden'); }
+            function showEditorForNewReflection() { currentReflectionId = null; document.getElementById('reflectionTitle').value = ''; reflectionQuill.setText(''); feedbackQuill.setText(''); document.getElementById('mediaPreviewContainer').innerHTML = ''; document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never'; showEditorView(); }
+            function listenForReflections() { if (!currentUserId) return; const q = query(collection(db, 'users', currentUserId, 'reflections'), orderBy('updatedAt', 'desc')); onSnapshot(q, (snapshot) => { const list = document.getElementById('reflectionsList'); list.innerHTML = ''; snapshot.docs.forEach(doc => { const reflection = { id: doc.id, ...doc.data() }; reflectionsCache.set(reflection.id, reflection); const li = document.createElement('li'); li.textContent = reflection.title || 'Untitled'; li.dataset.id = reflection.id; li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id)); list.appendChild(li); }); }); }
+            function loadReflectionIntoEditor(id) { const reflection = reflectionsCache.get(id); if (!reflection) return; currentReflectionId = id; document.getElementById('reflectionTitle').value = reflection.title || ''; reflectionQuill.root.innerHTML = reflection.reflectionContent || ''; feedbackQuill.root.innerHTML = reflection.feedbackContent || ''; document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${reflection.updatedAt?.toDate().toLocaleString() || 'Never'}`; const mediaContainer = document.getElementById('mediaPreviewContainer'); mediaContainer.innerHTML = ''; (reflection.mediaUrls || []).forEach(url => { const img = document.createElement('img'); img.src = url; mediaContainer.appendChild(img); }); showEditorView(); }
+            async function saveCurrentReflection() { if (!currentUserId) return; const data = { title: document.getElementById('reflectionTitle').value || 'Untitled', reflectionContent: reflectionQuill.root.innerHTML, feedbackContent: feedbackQuill.root.innerHTML, mediaUrls: Array.from(document.querySelectorAll('#mediaPreviewContainer img')).map(img => img.src), updatedAt: serverTimestamp() }; try { if (currentReflectionId) { await updateDoc(doc(db, 'users', currentUserId, 'reflections', currentReflectionId), data); } else { await addDoc(collection(db, 'users', currentUserId, 'reflections'), data); } showAppMessage('Reflection saved!'); showListView(); } catch (e) { console.error("Save error:", e); showAppMessage('Error saving.'); } }
+            async function deleteReflection(id) { if (!currentUserId || !id) return; try { await deleteDoc(doc(db, 'users', currentUserId, 'reflections', id)); showAppMessage('Reflection deleted.'); showListView(); } catch (e) { console.error("Delete error:", e); showAppMessage('Error deleting.'); } }
+            async function handleMediaUpload(event) { const files = event.target.files; const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`; const mediaContainer = document.getElementById('mediaPreviewContainer'); for (const file of files) { const formData = new FormData(); formData.append('file', file); formData.append('upload_preset', 'Dental'); try { const res = await fetch(url, { method: 'POST', body: formData }); if (!res.ok) throw new Error('Upload failed.'); const data = await res.json(); const img = document.createElement('img'); img.src = data.secure_url; mediaContainer.appendChild(img); } catch (e) { console.error('Upload error:', e); showAppMessage('Error uploading.'); } } }
+            function showConfirmationModal(id) { if (!id) return; const modal = document.getElementById('confirmationModal'); modal.classList.add('active'); document.getElementById('confirmYes').onclick = () => { deleteReflection(id); modal.classList.remove('active'); }; document.getElementById('confirmNo').onclick = () => modal.classList.remove('active'); }
+            function showAppMessage(text) { const el = document.getElementById('message'); el.textContent = text; el.classList.add('show-message'); setTimeout(() => el.classList.remove('show-message'), 3000); }
             function printPage() { window.print(); }
-            
-            // --- STEP 5: Netlify & Firebase Authentication Bridge ---
+
+            // --- STEP 5: ROBUST Netlify & Firebase Authentication Bridge ---
             async function authenticateWithFirebase() {
                 const netlifyUser = netlifyIdentity.currentUser();
-                if (!netlifyUser || !netlifyUser.token) {
-                    console.log("Not a Netlify user or no token found.");
-                    return;
+                // THIS IS THE CRITICAL FIX: Ensure user and token exist before proceeding.
+                if (!netlifyUser || !netlifyUser.token || !netlifyUser.token.access_token) {
+                    console.log("Netlify user or access token not ready yet. Waiting...");
+                    return; // Abort if the token isn't ready.
                 }
                 
-                console.log("STEP 3: Netlify user found. Requesting Firebase token...");
                 try {
                     const response = await fetch('/.netlify/functions/get-firebase-token', {
                         method: 'POST',
@@ -310,28 +155,25 @@
                     });
                     if (!response.ok) throw new Error(`Function returned status: ${response.status}`);
                     const data = await response.json();
-                    
-                    console.log("STEP 4: Got Firebase token. Signing in...");
                     await signInWithCustomToken(auth, data.token);
-                    console.log("STEP 5: Firebase sign-in successful!");
-
                 } catch (error) {
                     console.error("Firebase authentication bridge failed:", error);
-                    document.getElementById('app-content').innerHTML = `<div style="padding: 20px; text-align: center;"><h2>Authentication Error</h2><p>Could not sign in to the database. Please try logging out and back in.</p></div>`;
                 }
             }
 
+            // Listen for changes in Firebase auth state
             onAuthStateChanged(auth, (firebaseUser) => {
+                const appContent = document.getElementById('app-content');
                 if (firebaseUser) {
-                    document.getElementById('app-content').style.display = 'block';
-                    if (!appIsInitialized) {
-                        initializeMainApp(firebaseUser.uid);
-                        appIsInitialized = true;
-                    }
+                    appContent.style.display = 'block';
+                    initializeMainApp(firebaseUser.uid);
+                } else {
+                    appContent.style.display = 'none';
                 }
             });
-
-            netlifyIdentity.on('login', () => { 
+            
+            // Trigger authentication when Netlify events happen
+            netlifyIdentity.on('login', (user) => { 
                 netlifyIdentity.close(); 
                 authenticateWithFirebase();
             });
@@ -347,22 +189,11 @@
             
             // --- Dark Mode Theme Logic ---
             const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                const savedTheme = localStorage.getItem('myTechnicalReflection_theme') || 'light';
-                if (savedTheme === 'dark') {
-                    document.body.classList.add('dark-mode');
-                    themeToggle.checked = true;
-                }
-                themeToggle.addEventListener('change', () => {
-                    document.body.classList.toggle('dark-mode');
-                    const isDarkMode = document.body.classList.contains('dark-mode');
-                    localStorage.setItem('myTechnicalReflection_theme', isDarkMode ? 'dark' : 'light');
-                });
-            }
+            if (themeToggle) { const theme = localStorage.getItem('myTechnicalReflection_theme'); if (theme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.checked = true; } themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('myTechnicalReflection_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }); }
 
         } catch (error) {
-            console.error("!!!!!!!!!! A FATAL ERROR OCCURRED !!!!!!!!!!", error);
-            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>A critical error occurred while loading the application. Please check the browser console for more details and contact support.</p></div>`;
+            console.error("A FATAL ERROR OCCURRED:", error);
+            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize. Please check the browser console for details.</p></div>`;
         }
     </script>
 </body>
