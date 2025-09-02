@@ -35,6 +35,73 @@
         body.dark-mode .theme-toggle .icon {
             color: #63b3ed;
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+
+        .modal-container.dark-mode {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+
+        .modal-container h3 {
+            margin-top: 0;
+            color: #1a202c;
+        }
+        .modal-container.dark-mode h3 {
+            color: #e2e8f0;
+        }
+
+        .modal-container p {
+            margin-bottom: 20px;
+        }
+
+        .modal-container .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .modal-container button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal-container button.confirm-btn {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .modal-container button.cancel-btn {
+            background: #ccc;
+            color: #333;
+        }
+        body.dark-mode .modal-container button.cancel-btn {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
     </style>
 </head>
 <body class="light-mode">
@@ -155,6 +222,17 @@
         </div>
     </footer>
 
+    <!-- Custom Modal for Alerts/Confirms -->
+    <div id="customModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <div id="modalButtons" class="modal-buttons">
+                <!-- Buttons will be inserted here -->
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -162,9 +240,15 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for Firebase configuration
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const firebaseConfig = {
+  apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
+  authDomain: "reflect-dent-app.firebaseapp.com",
+  projectId: "reflect-dent-app",
+  storageBucket: "reflect-dent-app.firebasestorage.app",
+  messagingSenderId: "204434901803",
+  appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
+  measurementId: "G-HJ0F5QXH1W"
+};
 
         // Quill is globally available via the script tag
         const Quill = window.Quill;
@@ -199,6 +283,10 @@
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const fileInput = document.getElementById('fileInput');
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalButtons = document.getElementById('modalButtons');
 
         let reflectionQuill = null;
         let feedbackQuill = null;
@@ -266,6 +354,42 @@
             currentReflectionId = null;
         };
 
+        const showCustomModal = (title, message, isConfirm, onConfirm, onCancel) => {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalButtons.innerHTML = '';
+            
+            if (isConfirm) {
+                const confirmBtn = document.createElement('button');
+                confirmBtn.textContent = 'OK';
+                confirmBtn.className = 'confirm-btn';
+                confirmBtn.addEventListener('click', () => {
+                    if (onConfirm) onConfirm();
+                    customModal.classList.add('hidden');
+                });
+                modalButtons.appendChild(confirmBtn);
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.className = 'cancel-btn';
+                cancelBtn.addEventListener('click', () => {
+                    if (onCancel) onCancel();
+                    customModal.classList.add('hidden');
+                });
+                modalButtons.appendChild(cancelBtn);
+
+            } else {
+                const okBtn = document.createElement('button');
+                okBtn.textContent = 'OK';
+                okBtn.className = 'confirm-btn';
+                okBtn.addEventListener('click', () => {
+                    customModal.classList.add('hidden');
+                });
+                modalButtons.appendChild(okBtn);
+            }
+            customModal.classList.remove('hidden');
+        };
+
         const saveCurrentReflection = async () => {
             if (!isAuthReady || !auth.currentUser) {
                 showError("User not authenticated.");
@@ -277,8 +401,7 @@
             const title = reflectionTitle.value.trim();
 
             if (title === '') {
-                // IMPORTANT: Do not use alert().
-                showError('Please enter a title for your reflection.');
+                showCustomModal('Error', 'Please enter a title for your reflection.', false);
                 return;
             }
 
@@ -347,6 +470,9 @@
                 const data = doc.data();
                 const reflectionCard = document.createElement('div');
                 reflectionCard.className = 'reflection-card';
+                reflectionCard.dataset.title = data.title;
+                reflectionCard.dataset.createdAt = data.createdAt ? data.createdAt.toMillis() : 0;
+                reflectionCard.dataset.lastModified = data.lastModified ? data.lastModified.toMillis() : 0;
                 reflectionCard.innerHTML = `
                     <h3>${data.title}</h3>
                     <p>Modified: ${formatDate(data.lastModified)}</p>
@@ -382,8 +508,7 @@
         const deleteReflection = async () => {
              if (!currentReflectionId) return;
              
-             // IMPORTANT: Do not use alert() or confirm()
-             if (window.confirm('Are you sure you want to delete this reflection?')) {
+             showCustomModal('Delete Reflection', 'Are you sure you want to delete this reflection?', true, async () => {
                  const docRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/reflections`, currentReflectionId);
                  try {
                      await deleteDoc(docRef);
@@ -392,7 +517,7 @@
                  } catch (error) {
                      showError("Error deleting reflection: " + error.message);
                  }
-             }
+             });
          };
 
         const initializeMainApp = () => {
@@ -553,14 +678,7 @@
         // Event listeners and initial auth logic moved into this block
         if (auth) {
             // Initial sign-in with custom token or anonymously
-            if (initialAuthToken) {
-                signInWithCustomToken(auth, initialAuthToken).catch((error) => {
-                    console.error("Custom token sign-in failed:", error);
-                    signInAnonymously(auth);
-                });
-            } else {
-                signInAnonymously(auth);
-            }
+            signInAnonymously(auth);
 
             // Auth state listener
             onAuthStateChanged(auth, (user) => {
