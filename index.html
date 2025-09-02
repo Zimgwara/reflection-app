@@ -211,17 +211,6 @@
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 Reflect-Dent App. All Rights Reserved.</p>
-            <div class="footer-links">
-                <a href="./privacy_policy.html">Privacy Policy</a>
-                <a href="./terms_and_conditions.html">Terms and Conditions</a>
-                <a href="mailto:support@reflectdent.com">Contact Us</a>
-            </div>
-        </div>
-    </footer>
-
     <!-- Custom Modal for Alerts/Confirms -->
     <div id="customModal" class="modal-overlay hidden">
         <div class="modal-container">
@@ -240,15 +229,15 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for Firebase configuration
+        const appId = 'default-app-id'; // Use a consistent default ID for this environment
         const firebaseConfig = {
-  apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
-  authDomain: "reflect-dent-app.firebaseapp.com",
-  projectId: "reflect-dent-app",
-  storageBucket: "reflect-dent-app.firebasestorage.app",
-  messagingSenderId: "204434901803",
-  appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
-  measurementId: "G-HJ0F5QXH1W"
-};
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+        };
 
         // Quill is globally available via the script tag
         const Quill = window.Quill;
@@ -677,7 +666,7 @@
 
         // Event listeners and initial auth logic moved into this block
         if (auth) {
-            // Initial sign-in with custom token or anonymously
+            // This is the new, simplified sign-in for new users.
             signInAnonymously(auth);
 
             // Auth state listener
