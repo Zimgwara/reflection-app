@@ -88,147 +88,173 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.min.js"></script>
 
     <script type="module">
-        // --- STEP 1: Firebase Configuration ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
-            authDomain: "reflect-dent-app.firebaseapp.com",
-            projectId: "reflect-dent-app",
-            storageBucket: "reflect-dent-app.firebasestorage.app",
-            messagingSenderId: "204434901803",
-            appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
-            measurementId: "G-HJ0F5QXH1W"
-        };
+    // --- STEP 1: Firebase Configuration ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBrbR5e4dlc5Yd-d--Yvsr9tDmwXIKK8aE",
+        authDomain: "reflect-dent-app.firebaseapp.com",
+        projectId: "reflect-dent-app",
+        storageBucket: "reflect-dent-app.firebasestorage.app",
+        messagingSenderId: "204434901803",
+        appId: "1:204434901803:web:c2b10986b4b5f7f9a8936e",
+        measurementId: "G-HJ0F5QXH1W"
+    };
 
-        // --- STEP 2: Import Firebase Modules ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    // --- STEP 2: Import Firebase Modules ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-        try {
-            // --- STEP 3: Initialize Firebase ---
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
+    try {
+        // --- STEP 3: Initialize Firebase ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-            // --- STEP 4: Application Logic ---
-            let reflectionQuill, feedbackQuill, currentUserId = null, currentReflectionId = null;
-            const reflectionsCache = new Map();
-            let appIsInitialized = false;
+        // --- STEP 4: Application Logic ---
+        let reflectionQuill, feedbackQuill, currentUserId = null, currentReflectionId = null;
+        const reflectionsCache = new Map();
+        let appIsInitialized = false;
 
-            // Define the prompt texts
-            const prompts = {
-                well: "What went well?",
-                challenging: "What was challenging?",
-                future: "What will you work on or change in the future?",
-                star: "Situation: \nTask: \nAction: \nResult:"
-            };
+        // Define the prompt texts
+        const prompts = {
+            well: "What went well?",
+            challenging: "What was challenging?",
+            future: "What will you work on or change in the future?",
+            star: "Situation: \nTask: \nAction: \nResult:"
+        };
 
-            function initializeMainApp(userId) {
-                if (appIsInitialized) return;
-                appIsInitialized = true;
-                currentUserId = userId;
-                const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
-                reflectionQuill = new Quill('#reflection', { theme: 'snow', modules: { toolbar: toolbarOptions } });
-                feedbackQuill = new Quill('#feedback', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+        function initializeMainApp(userId) {
+            if (appIsInitialized) return;
+            appIsInitialized = true;
+            currentUserId = userId;
+            const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
+            reflectionQuill = new Quill('#reflection', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+            feedbackQuill = new Quill('#feedback', { theme: 'snow', modules: { toolbar: toolbarOptions } });
 
-                // Event listener for the "Insert Prompt" button
-                document.getElementById('insertPromptBtn').addEventListener('click', () => {
-                    const promptSelect = document.getElementById('promptSelect');
-                    const selectedPromptKey = promptSelect.value;
-                    const promptText = prompts[selectedPromptKey];
-                    if (promptText) {
-                        const currentContent = reflectionQuill.root.innerHTML;
-                        const newContent = `${currentContent}<br><br><strong>${promptText}</strong><br><br>`;
-                        reflectionQuill.root.innerHTML = newContent;
-                        reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
-                        reflectionQuill.focus();
-                    }
-                });
+            // Event listener for the "Insert Prompt" button
+            document.getElementById('insertPromptBtn').addEventListener('click', () => {
+                const promptSelect = document.getElementById('promptSelect');
+                const selectedPromptKey = promptSelect.value;
+                const promptText = prompts[selectedPromptKey];
+                if (promptText) {
+                    const currentContent = reflectionQuill.root.innerHTML;
+                    const newContent = `${currentContent}<br><br><strong>${promptText}</strong><br><br>`;
+                    reflectionQuill.root.innerHTML = newContent;
+                    reflectionQuill.setSelection(reflectionQuill.getLength(), 0);
+                    reflectionQuill.focus();
+                }
+            });
 
-                document.getElementById('newReflectionBtn').addEventListener('click', showEditorForNewReflection);
-                document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
-                document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
-                document.getElementById('mediaUpload').addEventListener('change', handleMediaUpload);
-                document.querySelector('.print-btn').addEventListener('click', () => window.print());
-                listenForReflections();
-            }
+            document.getElementById('newReflectionBtn').addEventListener('click', showEditorForNewReflection);
+            document.getElementById('saveReflectionBtn').addEventListener('click', saveCurrentReflection);
+            document.getElementById('deleteReflectionBtn').addEventListener('click', () => showConfirmationModal(currentReflectionId));
+            document.getElementById('mediaUpload').addEventListener('change', handleMediaUpload);
+            document.querySelector('.print-btn').addEventListener('click', () => window.print());
+            listenForReflections();
+        }
 
-            function showListView() { document.getElementById('reflectionsListContainer').classList.remove('hidden'); document.getElementById('reflectionEditorContainer').classList.add('hidden'); currentReflectionId = null; }
-            function showEditorView() { document.getElementById('reflectionsListContainer').classList.add('hidden'); document.getElementById('reflectionEditorContainer').classList.remove('hidden'); }
+        function showListView() { document.getElementById('reflectionsListContainer').classList.remove('hidden'); document.getElementById('reflectionEditorContainer').classList.add('hidden'); currentReflectionId = null; }
+        function showEditorView() { document.getElementById('reflectionsListContainer').classList.add('hidden'); document.getElementById('reflectionEditorContainer').classList.remove('hidden'); }
 
-            function showEditorForNewReflection() {
-                currentReflectionId = null;
-                document.getElementById('reflectionTitle').value = '';
-                reflectionQuill.setText('');
-                feedbackQuill.setText('');
-                document.getElementById('mediaPreviewContainer').innerHTML = '';
-                document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never';
-                // Reset the prompt dropdown
-                document.getElementById('promptSelect').value = '';
-                showEditorView();
-            }
-            function listenForReflections() { if (!currentUserId) return; const q = query(collection(db, 'users', currentUserId, 'reflections'), orderBy('updatedAt', 'desc')); onSnapshot(q, (snapshot) => { const list = document.getElementById('reflectionsList'); list.innerHTML = ''; snapshot.docs.forEach(doc => { const reflection = { id: doc.id, ...doc.data() }; reflectionsCache.set(reflection.id, reflection); const li = document.createElement('li'); li.textContent = reflection.title || 'Untitled'; li.dataset.id = reflection.id; li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id)); list.appendChild(li); }); }); }
-            function loadReflectionIntoEditor(id) { const reflection = reflectionsCache.get(id); if (!reflection) return; currentReflectionId = id; document.getElementById('reflectionTitle').value = reflection.title || ''; reflectionQuill.root.innerHTML = reflection.reflectionContent || ''; feedbackQuill.root.innerHTML = reflection.feedbackContent || ''; document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${reflection.updatedAt?.toDate().toLocaleString() || 'Never'}`; const mediaContainer = document.getElementById('mediaPreviewContainer'); mediaContainer.innerHTML = ''; (reflection.mediaUrls || []).forEach(url => { const img = document.createElement('img'); img.src = url; mediaContainer.appendChild(img); }); showEditorView(); }
-            async function saveCurrentReflection() { if (!currentUserId) return; const data = { title: document.getElementById('reflectionTitle').value || 'Untitled', reflectionContent: reflectionQuill.root.innerHTML, feedbackContent: feedbackQuill.root.innerHTML, mediaUrls: Array.from(document.querySelectorAll('#mediaPreviewContainer img')).map(img => img.src), updatedAt: serverTimestamp() }; try { if (currentReflectionId) { await updateDoc(doc(db, 'users', currentUserId, 'reflections', currentReflectionId), data); } else { await addDoc(collection(db, 'users', currentUserId, 'reflections'), data); } showAppMessage('Reflection saved!'); showListView(); } catch (e) { console.error("Save error:", e); showAppMessage('Error saving.'); } }
-            async function deleteReflection(id) { if (!currentUserId || !id) return; try { await deleteDoc(doc(db, 'users', currentUserId, 'reflections', id)); showAppMessage('Reflection deleted.'); showListView(); } catch (e) { console.error("Delete error:", e); showAppMessage('Error deleting.'); } }
-            // Updated handleMediaUpload function
-async function handleMediaUpload(event) {
-    const files = event.target.files;
-    // The URL is now correct with your cloud name
-    const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`;
-    // The upload preset is now correct and case-sensitive
-    const uploadPreset = 'ReflectDent';
-    const mediaContainer = document.getElementById('mediaPreviewContainer');
-    for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', uploadPreset);
-        try {
-            const res = await fetch(url, { method: 'POST', body: formData });
-            if (!res.ok) throw new Error('Upload failed.');
-            const data = await res.json();
-            const img = document.createElement('img');
-            img.src = data.secure_url;
-            mediaContainer.appendChild(img);
-        } catch (e) {
-            console.error('Upload error:', e);
-            showAppMessage('Error uploading.');
-        }
-    }
-}
-            function showConfirmationModal(id) { if (!id) return; const modal = document.getElementById('confirmationModal'); modal.classList.add('active'); document.getElementById('confirmYes').onclick = () => { deleteReflection(id); modal.classList.remove('active'); }; document.getElementById('confirmNo').onclick = () => modal.classList.remove('active'); }
-            function showAppMessage(text) { const el = document.getElementById('message'); el.textContent = text; el.classList.add('show-message'); setTimeout(() => el.classList.remove('show-message'), 3000); }
+        function showEditorForNewReflection() {
+            currentReflectionId = null;
+            document.getElementById('reflectionTitle').value = '';
+            reflectionQuill.setText('');
+            feedbackQuill.setText('');
+            document.getElementById('mediaPreviewContainer').innerHTML = '';
+            document.getElementById('lastSavedTimestamp').textContent = 'Last saved: Never';
+            // Reset the prompt dropdown
+            document.getElementById('promptSelect').value = '';
+            showEditorView();
+        }
+        function listenForReflections() { if (!currentUserId) return; const q = query(collection(db, 'users', currentUserId, 'reflections'), orderBy('updatedAt', 'desc')); onSnapshot(q, (snapshot) => { const list = document.getElementById('reflectionsList'); list.innerHTML = ''; snapshot.docs.forEach(doc => { const reflection = { id: doc.id, ...doc.data() }; reflectionsCache.set(reflection.id, reflection); const li = document.createElement('li'); li.textContent = reflection.title || 'Untitled'; li.dataset.id = reflection.id; li.addEventListener('click', () => loadReflectionIntoEditor(reflection.id)); list.appendChild(li); }); }); }
+        function loadReflectionIntoEditor(id) { const reflection = reflectionsCache.get(id); if (!reflection) return; currentReflectionId = id; document.getElementById('reflectionTitle').value = reflection.title || ''; reflectionQuill.root.innerHTML = reflection.reflectionContent || ''; feedbackQuill.root.innerHTML = reflection.feedbackContent || ''; document.getElementById('lastSavedTimestamp').textContent = `Last saved: ${reflection.updatedAt?.toDate().toLocaleString() || 'Never'}`; const mediaContainer = document.getElementById('mediaPreviewContainer'); mediaContainer.innerHTML = ''; (reflection.mediaUrls || []).forEach(url => { const img = document.createElement('img'); img.src = url; mediaContainer.appendChild(img); }); showEditorView(); }
+        async function saveCurrentReflection() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert("You must be logged in to save a reflection.");
+                return;
+            }
+            const data = {
+                title: document.getElementById('reflectionTitle').value || 'Untitled',
+                reflectionContent: reflectionQuill.root.innerHTML,
+                feedbackContent: feedbackQuill.root.innerHTML,
+                mediaUrls: Array.from(document.querySelectorAll('#mediaPreviewContainer img')).map(img => img.src),
+                userId: user.uid,
+                updatedAt: serverTimestamp()
+            };
+            try {
+                if (currentReflectionId) {
+                    await updateDoc(doc(db, 'users', currentUserId, 'reflections', currentReflectionId), data);
+                } else {
+                    await addDoc(collection(db, 'users', currentUserId, 'reflections'), data);
+                }
+                showAppMessage('Reflection saved!');
+                showListView();
+            } catch (e) {
+                console.error("Save error:", e);
+                alert('Error saving. Check the console for details.');
+            }
+        }
+        async function deleteReflection(id) { if (!currentUserId || !id) return; try { await deleteDoc(doc(db, 'users', currentUserId, 'reflections', id)); showAppMessage('Reflection deleted.'); showListView(); } catch (e) { console.error("Delete error:", e); showAppMessage('Error deleting.'); } }
+        // Updated handleMediaUpload function
+        async function handleMediaUpload(event) {
+            const files = event.target.files;
+            // The URL is now correct with your cloud name
+            const url = `https://api.cloudinary.com/v1_1/dslh2taed/upload`;
+            // The upload preset is now correct and case-sensitive
+            const uploadPreset = 'ReflectDent';
+            const mediaContainer = document.getElementById('mediaPreviewContainer');
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', uploadPreset);
+                try {
+                    const res = await fetch(url, { method: 'POST', body: formData });
+                    if (!res.ok) throw new Error('Upload failed.');
+                    const data = await res.json();
+                    const img = document.createElement('img');
+                    img.src = data.secure_url;
+                    mediaContainer.appendChild(img);
+                } catch (e) {
+                    console.error('Upload error:', e);
+                    showAppMessage('Error uploading.');
+                }
+            }
+        }
+        function showConfirmationModal(id) { if (!id) return; const modal = document.getElementById('confirmationModal'); modal.classList.add('active'); document.getElementById('confirmYes').onclick = () => { deleteReflection(id); modal.classList.remove('active'); }; document.getElementById('confirmNo').onclick = () => modal.classList.remove('active'); }
+        function showAppMessage(text) { const el = document.getElementById('message'); el.textContent = text; el.classList.add('show-message'); setTimeout(() => el.classList.remove('show-message'), 3000); }
 
-            // --- STEP 5: Authentication Bridge ---
-            async function authenticateWithFirebase(user) {
-                if (!user || !user.token || !user.token.access_token) return;
-                try {
-                    const response = await fetch('/.netlify/functions/get-firebase-token', { method: 'POST', headers: { 'Authorization': `Bearer ${user.token.access_token}` } });
-                    if (!response.ok) throw new Error(`Function status: ${response.status}`);
-                    const data = await response.json();
-                    await signInWithCustomToken(auth, data.token);
-                } catch (error) { console.error("Auth bridge failed:", error); }
-            }
+        // --- STEP 5: Authentication Bridge ---
+        async function authenticateWithFirebase(user) {
+            if (!user || !user.token || !user.token.access_token) return;
+            try {
+                const response = await fetch('/.netlify/functions/get-firebase-token', { method: 'POST', headers: { 'Authorization': `Bearer ${user.token.access_token}` } });
+                if (!response.ok) throw new Error(`Function status: ${response.status}`);
+                const data = await response.json();
+                await signInWithCustomToken(auth, data.token);
+            } catch (error) { console.error("Auth bridge failed:", error); }
+        }
 
-            onAuthStateChanged(auth, (firebaseUser) => {
-                document.getElementById('app-content').style.display = firebaseUser ? 'block' : 'none';
-                if (firebaseUser) initializeMainApp(firebaseUser.uid);
-            });
+        onAuthStateChanged(auth, (firebaseUser) => {
+            document.getElementById('app-content').style.display = firebaseUser ? 'block' : 'none';
+            if (firebaseUser) initializeMainApp(firebaseUser.uid);
+        });
 
-            netlifyIdentity.on('login', (user) => { netlifyIdentity.close(); authenticateWithFirebase(user); });
-            netlifyIdentity.on('logout', async () => { if (auth.currentUser) await signOut(auth); window.location.reload(); });
-            netlifyIdentity.on('init', (user) => { if (user) authenticateWithFirebase(user); });
+        netlifyIdentity.on('login', (user) => { netlifyIdentity.close(); authenticateWithFirebase(user); });
+        netlifyIdentity.on('logout', async() => { if (auth.currentUser) await signOut(auth); window.location.reload(); });
+        netlifyIdentity.on('init', (user) => { if (user) authenticateWithFirebase(user); });
 
-            // --- Dark Mode ---
-            const themeToggle = document.getElementById('themeToggle');
-            const savedTheme = localStorage.getItem('myTechnicalReflection_theme');
-            if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.checked = true; }
-            themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('myTechnicalReflection_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); });
+        // --- Dark Mode ---
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('myTechnicalReflection_theme');
+        if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.checked = true; }
+        themeToggle.addEventListener('change', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('myTechnicalReflection_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); });
 
-        } catch (error) {
-            console.error("A FATAL ERROR OCCURRED:", error);
-            document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize. Check the console.</p></div>`;
-        }
-    </script>
+    } catch (error) {
+        console.error("A FATAL ERROR OCCURRED:", error);
+        document.body.innerHTML = `<div style="padding: 40px; font-family: sans-serif; text-align: center;"><h1>Application Error</h1><p>Could not initialize. Check the console.</p></div>`;
+    }
+</script>
 </body>
 </html>
