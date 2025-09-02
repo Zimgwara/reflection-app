@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflect-Dent App</title>
+    <title>ReflectDent App</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>">
     <link href="https://cdn.quilljs.com/2.0.0-rc.4/quill.snow.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -478,7 +478,7 @@
                 <circle cx="42" cy="55" r="5" fill="#3498db"/>
                 <circle cx="58" cy="55" r="5" fill="#3498db"/>
             </svg>
-            <h1>Welcome to Reflect-Dent</h1>
+            <h1>Welcome to ReflectDent</h1>
             <p>Sign in with your university email to get started.</p>
             <form id="authForm">
                 <input type="email" id="emailInput" placeholder="st.....@outlook.cardiffmet.ac.uk" required>
@@ -588,7 +588,13 @@
     </main>
 
     <footer class="footer">
-        <p>Reflect-Dent App | Copyright © 2024</p>
+        <p>
+            ReflectDent App | Copyright &copy; 2024
+            <br>
+            <a href="privacy_policy.html" target="_blank" style="text-decoration: underline;">Privacy Policy</a>
+            &bull;
+            <a href="terms_and_conditions.html" target="_blank" style="text-decoration: underline;">Terms & Conditions</a>
+        </p>
     </footer>
 
     <!-- Custom Modal for Alerts/Confirms -->
@@ -602,9 +608,10 @@
         </div>
     </div>
 
+    <script src="https://cdn.quilljs.com/2.0.0-rc.4/quill.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, serverTimestamp, updateDoc, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
@@ -1008,19 +1015,12 @@
             // This can be used for more advanced features like autosaving
         };
 
-        const initializeFirebase = async (firebaseConfig, initialAuthToken) => {
+        const initializeFirebase = (firebaseConfig) => {
             try {
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                // Use the token if it exists, otherwise sign in anonymously
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
                 // Auth state listener
                 onAuthStateChanged(auth, (user) => {
                     isAuthReady = true;
@@ -1042,13 +1042,11 @@
 
         const loadConfigAndRun = () => {
             const storedConfig = localStorage.getItem('firebaseConfig');
-            const storedToken = localStorage.getItem('initialAuthToken');
             
             if (storedConfig) {
                 try {
                     const parsedConfig = JSON.parse(storedConfig);
-                    const parsedToken = storedToken ? storedToken : null;
-                    initializeFirebase(parsedConfig, parsedToken);
+                    initializeFirebase(parsedConfig);
                 } catch (e) {
                     console.error('Invalid Firebase config in localStorage:', e);
                     showError('Invalid Firebase config saved. Please enter a valid JSON object.', configMessage);
@@ -1064,11 +1062,6 @@
                 const config = JSON.parse(configInput.value);
                 localStorage.setItem('firebaseConfig', JSON.stringify(config));
                 
-                // For this to work, you also need to get the __app_id and __initial_auth_token and paste it in here too
-                // For example:
-                // localStorage.setItem('firebaseAppId', 'your_app_id');
-                // localStorage.setItem('initialAuthToken', 'your_auth_token');
-
                 showSuccess('Configuration saved! Redirecting...', configMessage);
                 setTimeout(() => {
                     loadConfigAndRun();
@@ -1157,14 +1150,5 @@
         // Start the app by trying to load the config
         loadConfigAndRun();
     </script>
-<footer class="footer">
-<p>
-Reflect-Dent App | Copyright &copy; 2024
-<br>
-<a href="privacy_policy.html" target="_blank" style="text-decoration: underline;">Privacy Policy</a>
-&bull;
-<a href="terms_and_conditions.html" target="_blank" style="text-decoration: underline;">Terms & Conditions</a>
-</p>
-</footer>
 </body>
 </html>
