@@ -3,7 +3,7 @@ const urlsToCache = [
     './', // Cache the root index.html
     './index.html',
     './style.css',
-    './script.js',
+    './app.js',
     './manifest.json',
     './company_logo.png', // Make sure this path is correct if your logo is elsewhere
     // Add paths to your PWA icons here:
@@ -72,3 +72,4 @@ self.addEventListener('activate', event => {
         })
     );
 });
+
