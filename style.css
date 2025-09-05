@@ -1,101 +1,376 @@
-/* --- Base Styles (Mobile-First) --- */
+/* Custom CSS Variables */
+:root {
+  --color-white: #ffffff;
+  --color-navy: #1A237E; /* Toned-down Navy */
+  --color-maroon: #7B241C; /* Toned-down Maroon */
+  --color-light-gray: #f0f2f5;
+  --color-dark-gray: #333;
+}
+
+/* General Body and Container Styling */
 body {
-    background-color: #f4f7f9;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
+  font-family: 'ReflectSans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--color-light-gray);
+  color: var(--color-dark-gray);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  text-align: center; /* Centers all inline/inline-block content */
 }
 
-.container-fluid {
-    width: 100%;
-    padding: 1rem;
+#app-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  text-align: left; /* Restores text alignment within the main container */
 }
 
-.navbar {
-    display: flex;
-    flex-direction: column; /* Stacks items vertically on mobile */
-    align-items: center;
-    padding: 1rem;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
-    border-radius: 8px;
+/* Header and Navigation */
+header {
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 900px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.logo {
-    font-size: 1.5rem;
-    color: #34495e;
-    margin: 0 0 10px 0; /* Adds spacing below the logo on mobile */
+header h1 {
+  margin: 0;
+  color: var(--color-navy);
 }
 
+.header-logo {
+    height: 50px; /* Adjust height as needed */
+    width: auto; /* Maintains the image's aspect ratio */
+    display: block; /* Ensures it behaves as a block element */
+    margin: 0 auto; /* Centers the logo horizontally */
+}
+
+#user-nav {
+  display: flex;
+  gap: 10px;
+}
+
+/* Custom Message Box and Modals */
+.message-box {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-navy);
+  color: var(--color-white);
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
+}
+
+.message-box.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 500;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: var(--color-white);
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+  text-align: left; /* Restores text alignment within modals */
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Auth Section */
+.auth-card {
+  background-color: var(--color-white);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  margin: 40px auto;
+}
+
+.auth-card h2 {
+  color: var(--color-navy);
+}
+
+.auth-card input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.auth-card .btn {
+  width: calc(50% - 5px);
+}
+
+.auth-card .btn-secondary {
+  margin-left: 10px;
+}
+
+.text-link {
+  background: none;
+  border: none;
+  color: var(--color-navy);
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+/* Main App Content */
+#app-content {
+  display: none;
+  padding: 20px;
+}
+
+/* Toolbar and Sorting */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sort-options {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Reflection Cards */
+.reflection-list {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.reflection-card {
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left; /* Ensures card content is aligned left */
+}
+
+.reflection-card h3 {
+  color: var(--color-navy);
+  margin-top: 0;
+}
+
+.reflection-card .reflection-content,
+.reflection-card .feedback-content {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: var(--color-light-gray);
+  border-left: 4px solid var(--color-navy);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.reflection-card .card-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Quill Editor Styling */
+.quill-editor {
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+.ql-container {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Buttons */
 .btn {
-    background-color: #3498db;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.main-content {
-    display: flex;
+.btn-primary {
+  background-color: var(--color-navy);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-maroon);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: var(--color-light-gray);
+  color: var(--color-dark-gray);
+  border: 1px solid #ccc;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.btn-edit { background-color: var(--color-navy); color: var(--color-white); }
+.btn-edit:hover { background-color: var(--color-maroon); }
+
+.btn-delete { background-color: #e74c3c; color: white; }
+.btn-delete:hover { background-color: #c0392b; }
+
+.btn-download { background-color: var(--color-navy); color: var(--color-white); }
+.btn-download:hover { background-color: var(--color-maroon); }
+
+/* Cookie Consent Banner */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--color-white);
+  border-top: 1px solid #e0e0e0;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center; /* Centering the cookie banner contents */
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.cookie-banner p {
+  margin: 0;
+  font-size: 14px;
+  max-width: 60%;
+  text-align: center;
+}
+
+.cookie-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Footer Styling */
+footer {
+  text-align: center;
+  padding: 20px 0;
+  margin-top: 20px;
+}
+
+footer p {
+  margin: 0;
+}
+
+footer a {
+  margin: 0 10px;
+  color: var(--color-navy);
+  text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header {
     flex-direction: column;
-    gap: 1.5rem;
-}
-
-.new-reflection-section, .reflections-display-section {
-    background-color: #fff;
-    padding: 1.5rem; /* Slightly reduced padding for mobile */
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.reflection-cards-container {
-    display: flex;
-    flex-direction: column; /* Cards stack vertically on mobile */
-    gap: 1rem;
-}
-
-.card {
-    border: 1px solid #e0e6ed;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.card-img-top {
+    gap: 15px;
+  }
+  .auth-card {
+    padding: 20px;
+  }
+  .auth-card input, .auth-card .btn {
     width: 100%;
-    height: auto;
-    max-height: 200px;
-    object-fit: cover;
-    display: block;
+    margin: 5px 0;
+  }
+  .auth-card .btn-secondary {
+    margin-left: 0;
+  }
+  .cookie-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  .cookie-banner p {
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  .cookie-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+}
+/* This applies to the container you created in a previous step */
+.auth-buttons-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap to the next line */
+    justify-content: center; /* Centers buttons horizontally */
+    gap: 10px; /* Provides space between buttons */
 }
 
-/* --- Media Query for Larger Screens (Tablets & Desktops) --- */
-@media (min-width: 768px) {
-    .navbar {
-        flex-direction: row; /* Changes to horizontal layout on larger screens */
-        justify-content: space-between;
-    }
-
-    .logo {
-        margin: 0;
-    }
-
-    .container-fluid {
-        max-width: 1200px; /* Expands to a maximum width on desktop */
-    }
-
-    .new-reflection-section, .reflections-display-section {
-        padding: 2rem;
-    }
-
-    .reflection-cards-container {
-        display: grid; /* Switches to a grid layout */
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
+/* This is a media query that targets small screens like phones */
+@media (max-width: 600px) {
+    .btn, .text-link {
+        flex-basis: 100%; /* Makes each button take up the full width on small screens */
     }
 }
